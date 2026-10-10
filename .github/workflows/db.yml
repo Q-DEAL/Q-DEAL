@@ -12,7 +12,7 @@ permissions:
 jobs:
   migrations-and-rules:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 30
     services:
       postgis:
         image: postgis/postgis:17-3.5

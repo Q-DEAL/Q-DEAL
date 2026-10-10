@@ -87,13 +87,18 @@ UPDATE core.config SET count_display_min = 5;      -- seuil d’affichage du com
 
 Une entreprise reçoit la même erreur pour une mission inexistante et pour la mission d’une autre entreprise : elle ne peut pas deviner les identifiants des autres.
 
-## Démo sur le site (GitHub Pages)
+## Pages Missions et Publier une mission (GitHub Pages)
 
-GitHub Pages ne sert que des fichiers statiques : la démo (`demo-fr.html`, `demo.html`) lit un instantané, `assets/demo/localisation-demo.js`, produit par `bash db/scripts/export-demo.sh`. Le script applique les migrations sur une base jetable, charge `db/fixtures/dev.sql` et `db/demo/extra.sql` (données fictives), puis appelle les fonctions `api` : vue de trois prestataires avant et après acceptation, missions d’exemple, compteur et candidats pour cinq adresses et toutes les combinaisons de compétences.
+GitHub Pages ne sert que des fichiers statiques : `missions*.html` et `post-task*.html` lisent un instantané produit par `bash db/scripts/export-demo.sh`. Le script applique les migrations sur une base jetable, charge `db/fixtures/dev.sql` et `db/demo/extra.sql` (données fictives), puis appelle les fonctions `api` :
 
-`demo.js` ne rejoue que deux règles : combien d’exemples complètent la liste d’un prestataire, et quels candidats ont les compétences demandées. Le script échoue si ce rejeu diffère de ce que renvoie la base. La CI vérifie aussi que l’instantané committé est à jour (`export-demo.sh --check`).
+- pour chaque lieu proposé par la recherche (Strasbourg et ses quartiers, Colmar, les grandes villes…), un visiteur placé là, avec toutes les compétences et un rayon de 10 km : missions avant et après acceptation, missions d’exemple ;
+- pour cinq adresses du formulaire et toutes les combinaisons de compétences : compteur et candidats.
 
-Les adresses de la démo ne désignent aucun logement précis : lieux publics, ou rue avec un numéro d’appartement fictif.
+Il écrit `assets/demo/missions.js` (données des deux pages) et `assets/demo/places.js` (index des lieux, chargé par la recherche sur toutes les pages).
+
+`localisation.js` ne rejoue que deux règles : combien d’exemples complètent une liste, et quels candidats ont les compétences demandées. Le script échoue si ce rejeu diffère de ce que renvoie la base, et la CI vérifie que l’instantané committé est à jour (`export-demo.sh --check`).
+
+Les pages indiquent qu’il s’agit de missions et de prestataires fictifs. Leurs adresses ne désignent aucun logement précis : lieux publics, ou rue avec un numéro d’appartement fictif.
 
 ## Protection des adresses
 
