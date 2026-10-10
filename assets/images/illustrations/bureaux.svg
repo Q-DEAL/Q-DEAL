@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t"><title id="t">Des bureaux propres, entretenus avant l’arrivée des équipes</title>
+<rect width="600" height="400" fill="#fff3ee"/>
+<rect x="60" y="40" width="250" height="190" rx="10" fill="#fff"/><rect x="60" y="40" width="250" height="190" rx="10" fill="none" stroke="#101014" stroke-width="4"/>
+<path d="M185 40v190M60 135h250" stroke="#101014" stroke-width="4"/>
+<path d="M70 230v-40h22v-30h18v70zM200 230v-60h26v-25h20v85zM255 230v-35h30v35z" fill="#ffd9cc"/>
+<circle cx="262" cy="80" r="20" fill="#ffcb59"/>
+<rect x="0" y="300" width="600" height="100" fill="#ffd9cc"/>
+<rect x="330" y="200" width="230" height="14" rx="4" fill="#101014"/><rect x="350" y="214" width="10" height="90" fill="#101014"/><rect x="530" y="214" width="10" height="90" fill="#101014"/>
+<rect x="390" y="120" width="120" height="74" rx="8" fill="#101014"/><rect x="398" y="128" width="104" height="58" rx="4" fill="#f15a3b"/><rect x="440" y="194" width="20" height="8" fill="#101014"/>
+<path d="M418 158l14 14 30-30" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M345 200c-6-30 4-60 20-70-2 25 4 45-6 70zM352 200c10-26 30-40 48-40-14 14-22 30-34 40z" fill="#228757"/><rect x="340" y="186" width="30" height="16" rx="3" fill="#f15a3b"/>
+<rect x="150" y="250" width="12" height="120" rx="6" fill="#101014" transform="rotate(-18 156 310)"/>
+<rect x="160" y="352" width="70" height="16" rx="8" fill="#f15a3b" transform="rotate(-18 195 360)"/>
+<path d="M60 300h70l-8 70H68z" fill="#101014"/><path d="M58 300h74" stroke="#f15a3b" stroke-width="8" stroke-linecap="round"/>
+<path d="M300 275l6 16 16 6-16 6-6 16-6-16-16-6 16-6zM560 60l5 12 12 5-12 5-5 12-5-12-12-5 12-5zM110 90l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#f15a3b"/>
+</svg>

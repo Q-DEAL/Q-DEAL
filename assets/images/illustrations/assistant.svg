@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t"><title id="t">Une conversation avec l’assistant Q DEAL</title>
+<rect width="600" height="400" fill="#f15a3b"/>
+<circle cx="520" cy="330" r="150" fill="#ff7a5c"/>
+<path d="M70 60h270a24 24 0 0 1 24 24v76a24 24 0 0 1-24 24H130l-60 40z" fill="#fff"/>
+<path d="M100 104h200M100 136h140" stroke="#ffd9cc" stroke-width="14" stroke-linecap="round"/>
+<path d="M530 190H280a24 24 0 0 0-24 24v70a24 24 0 0 0 24 24h190l60 40z" fill="#101014"/>
+<circle cx="316" cy="250" r="22" fill="none" stroke="#f15a3b" stroke-width="8"/><path d="M334 250v32" stroke="#f15a3b" stroke-width="8" stroke-linecap="round"/>
+<path d="M366 236h130M366 266h90" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".85"/>
+<path d="M500 70l8 20 20 8-20 8-8 20-8-20-20-8 20-8z" fill="#fff"/>
+</svg>

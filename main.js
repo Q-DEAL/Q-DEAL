@@ -298,3 +298,68 @@ if (contactForm) {
     window.location.href = mailto;
   });
 }
+
+/* Chatbot vitrine : une démonstration scénarisée, sans vraie conversation ni envoi de données. */
+const botScript = [
+  { q: "Combien de temps pour nettoyer mes bureaux ?", a: "Tout dépend des surfaces et des pièces. Ajoutez une photo par zone dans « Estimer un besoin » : Q DEAL vous donne une première durée et le nombre de prestataires proches.", link: ["Estimer un nettoyage", "estimation.html"] },
+  { q: "Dois-je redonner mes consignes à chaque fois ?", a: "Non. Vos photos et vos consignes sont enregistrées une fois. Chaque nouveau prestataire les reçoit, avec un guide vidéo préparé par l’IA.", link: ["Voir le guide vidéo", "formations.html"] },
+  { q: "Je suis étudiant, comment commencer ?", a: "Créez votre profil avec vos disponibilités et votre zone. Q DEAL vous rappelle aussi vos déclarations URSSAF et votre assurance RC Pro par email.", link: ["Devenir prestataire", "devenir-prestataire.html"] },
+  { q: "C’est quoi l’agenda intelligent ?", a: "Bientôt pour les pros : il regroupe les prestations d’un même quartier en une tournée, dans l’ordre le plus court, pour éviter les trajets à vide.", link: ["Découvrir l’agenda", "fonctionnalites.html#agenda"] },
+];
+const qIcon = '<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="18" cy="18" r="11" fill="none" stroke="currentColor" stroke-width="5"/><path d="M29 18v15" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>';
+const bot = document.createElement("div");
+bot.className = "qbot";
+bot.innerHTML = `
+  <section class="qbot-panel" id="qbot-panel" role="dialog" aria-label="Assistant Q DEAL (démonstration)" hidden>
+    <header class="qbot-head"><span class="qbot-avatar">${qIcon}</span><div><b>Assistant Q DEAL</b><small>Démonstration · bientôt disponible</small></div><button class="qbot-close" type="button" aria-label="Fermer l’assistant">×</button></header>
+    <div class="qbot-log" aria-live="polite"></div>
+    <div class="qbot-chips"></div>
+    <div class="qbot-input"><input type="text" placeholder="La conversation libre arrive bientôt" disabled aria-label="Message (bientôt disponible)"><button type="button" disabled aria-label="Envoyer">➤</button></div>
+  </section>
+  <button class="qbot-launcher" type="button" aria-controls="qbot-panel" aria-expanded="false"><span class="qbot-launcher-ring">${qIcon}</span><span class="qbot-launcher-text">Une question ?</span></button>`;
+document.body.append(bot);
+const botPanel = bot.querySelector(".qbot-panel");
+const botLauncher = bot.querySelector(".qbot-launcher");
+const botLog = bot.querySelector(".qbot-log");
+const botChips = bot.querySelector(".qbot-chips");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let botStarted = false;
+
+function addBubble(who, html) {
+  const bubble = document.createElement("p");
+  bubble.className = `qbot-msg qbot-${who}`;
+  bubble.innerHTML = html;
+  botLog.append(bubble);
+  botLog.scrollTop = botLog.scrollHeight;
+  return bubble;
+}
+function botSays(html, done) {
+  const typing = addBubble("bot", '<span class="qbot-typing"><i></i><i></i><i></i></span>');
+  setTimeout(() => { typing.innerHTML = html; botLog.scrollTop = botLog.scrollHeight; if (done) done(); }, reduceMotion ? 0 : 900);
+}
+function renderChips() {
+  botChips.replaceChildren(...botScript.map((item) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.textContent = item.q;
+    chip.addEventListener("click", () => {
+      botChips.querySelectorAll("button").forEach((b) => (b.disabled = true));
+      addBubble("user", item.q);
+      botSays(`${item.a} <a href="${item.link[1]}">${item.link[0]} →</a>`, () => botChips.querySelectorAll("button").forEach((b) => (b.disabled = false)));
+    });
+    return chip;
+  }));
+}
+function setBotOpen(isOpen) {
+  botPanel.hidden = !isOpen;
+  botLauncher.setAttribute("aria-expanded", String(isOpen));
+  bot.classList.toggle("is-open", isOpen);
+  if (isOpen && !botStarted) {
+    botStarted = true;
+    botSays("Bonjour ! Je suis l’assistant Q DEAL. Choisissez une question pour voir comment je réponds.", renderChips);
+  }
+  if (isOpen) bot.querySelector(".qbot-close").focus();
+}
+botLauncher.addEventListener("click", () => setBotOpen(botPanel.hidden));
+bot.querySelector(".qbot-close").addEventListener("click", () => { setBotOpen(false); botLauncher.focus(); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !botPanel.hidden) { setBotOpen(false); botLauncher.focus(); } });
