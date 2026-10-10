@@ -30,6 +30,10 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/) pour l’anglais
 - `assets/images/` contient le logo (`qdeal-logo.svg`), le favicon et les images.
 - Les polices Inter et Manrope sont chargées depuis Google Fonts, donc leur chargement demande une connexion internet.
 
+## Localisation (PostGIS)
+
+La base de données de la fonctionnalité de localisation et son environnement Codespaces sont décrits dans [db/README.md](db/README.md).
+
 ## Formulaire de contact
 
 Le formulaire de `contact.html` et `contact-fr.html` ouvre la messagerie du visiteur avec le message pré-rempli. L’adresse de réception est dans l’attribut `action="mailto:…"` du formulaire : remplacez le placeholder `contact@example.com` dans les deux pages.
