@@ -10,6 +10,8 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `missions.html` — missions autour d’un lieu : carte et liste
 - `post-task.html` — publication d’une mission, compteur de prestataires et candidats
 
+- `student-portal.html` — espace étudiant (voir plus bas)
+
 Le site est en français uniquement ; les anciennes adresses `*-fr.html` redirigent vers ces pages.
 
 ## Voir le site en local
@@ -36,6 +38,12 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/).
 La base de données de la fonctionnalité de localisation et son environnement Codespaces sont décrits dans [db/README.md](db/README.md).
 
 La barre de recherche de l’en-tête ouvre le choix du service (catégorie « Ménage », quatre familles, vingt-quatre services) et du lieu, puis mène à `missions.html?service=…&lieu=…`. « Demander un service » mène à `post-task.html`. Ces pages (`localisation.js`) fonctionnent sans serveur, donc sur GitHub Pages : leurs données (`assets/demo/missions.js` et `assets/demo/catalog.js`) sont produites par les vraies fonctions de la base, sur des données fictives. Le catalogue des services est défini dans `db/migrations/20261010180000_cleaning_services.sql`. Après un changement dans `db/`, régénérez-les avec `bash db/scripts/export-demo.sh` (dans le Codespace), puis lancez `py scripts/version-assets.py`. La carte utilise Leaflet 1.9.4, copié dans `assets/vendor/`, et les fonds de carte OpenStreetMap (connexion internet nécessaire).
+
+## Espace étudiant
+
+Les pages `student-*.html` forment l’espace du prestataire : tableau de bord (`student-portal.html`), recherche de prestations (`student-tasks.html`) et détail (`student-task.html`), candidatures, planning, suivi administratif, profil et notifications. On y accède par le lien « Espace étudiant » du menu « Prestations ». Tout est rendu par `portal.js`, à partir du même instantané que `missions.html` (`assets/demo/missions.js`).
+
+C’est une démonstration sans compte ni serveur : l’étudiant est choisi dans le menu de session (en haut à droite), et ses candidatures, son profil et son dossier sont enregistrés dans le navigateur (clé `localStorage` `qdeal.portal.v1`, effaçable par « Réinitialiser cet espace »). Les règles de la base sont rejouées : compétences requises (QD003), rayon de déplacement (QD004), prestations d’exemple non acceptables, adresse exacte révélée après candidature. Les documents administratifs ne sont jamais envoyés : seul le nom du fichier choisi est noté.
 
 ## Formulaire de contact
 

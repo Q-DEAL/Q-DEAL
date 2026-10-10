@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Votre espace étudiant Q DEAL : candidatures, prestations à venir, dossier administratif et notifications.">
+    <title>Tableau de bord | Espace étudiant Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=c02375dd">
+  </head>
+  <body class="portal-page" data-portal-page="dashboard">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace étudiant"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Tableau de bord</p>
+          <h1 data-greeting>Bonjour</h1>
+          <p class="sp-lede" data-lede></p>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-todo-title" data-alerts-block hidden>
+          <div class="sp-block-head"><h2 id="sp-todo-title">À faire</h2></div>
+          <ul class="sp-alerts" data-alerts></ul>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-stats-title">
+          <div class="sp-block-head"><h2 id="sp-stats-title">Vue d’ensemble</h2></div>
+          <ul class="sp-stats" data-stats></ul>
+        </section>
+
+        <div class="sp-split">
+          <section class="sp-block" aria-labelledby="sp-next-title">
+            <div class="sp-block-head"><h2 id="sp-next-title">Prochaines prestations</h2><a class="sp-link" href="student-schedule.html">Tout voir</a></div>
+            <div data-next></div>
+          </section>
+          <div class="sp-stack">
+            <section class="sp-block" aria-labelledby="sp-progress-title">
+              <div class="sp-block-head"><h2 id="sp-progress-title">Progression du profil</h2><a class="sp-link" href="student-profile.html">Compléter</a></div>
+              <div data-progress></div>
+            </section>
+            <section class="sp-block" aria-labelledby="sp-dossier-title">
+              <div class="sp-block-head"><h2 id="sp-dossier-title">Dossier administratif</h2><a class="sp-link" href="student-documents.html">Ouvrir</a></div>
+              <div data-dossier></div>
+            </section>
+          </div>
+        </div>
+
+        <section class="sp-block" aria-labelledby="sp-notif-title">
+          <div class="sp-block-head"><h2 id="sp-notif-title">Notifications</h2><a class="sp-link" href="student-notifications.html">Tout voir</a></div>
+          <div data-notifications></div>
+        </section>
+      </main>
+    </div>
+    <script src="assets/demo/missions.js?v=313674f1"></script>
+    <script src="portal.js?v=65149882"></script>
+  </body>
+</html>
