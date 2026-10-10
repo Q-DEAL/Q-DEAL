@@ -84,7 +84,7 @@ function rankPlaces(query, places) {
 window.QDEAL_SEARCH = { normalize, rankPlaces };
 
 /* Search dialog: a cleaning service (assets/demo/catalog.js) and a place. Opened from the header
-   field on every page; leads to the missions page with ?service=…&lieu=… */
+   field on every page; leads to the prestations page with ?service=…&lieu=… */
 const catalog = window.QDEAL_CATALOG || { places: [], groups: [], services: [] };
 const dialog = document.querySelector("#search-dialog");
 const openers = document.querySelectorAll("[data-open-search]");
@@ -114,7 +114,7 @@ let selectedService = null;
 
 catalog.places.forEach((place) => dialog.querySelector("#search-dialog-places").append(new Option(placeLabel(place))));
 
-// On the missions page the header field shows the current search.
+// On the prestations page the header field shows the current search.
 const pageParams = new URLSearchParams(window.location.search);
 const paramService = catalog.services.find((service) => service.code === pageParams.get("service"));
 const paramPlace = catalog.places.find((place) => place.key === pageParams.get("lieu")) || rankPlaces(pageParams.get("lieu") || "", catalog.places)[0];

@@ -87,14 +87,14 @@ UPDATE core.config SET count_display_min = 5;      -- seuil d’affichage du com
 
 Une entreprise reçoit la même erreur pour une mission inexistante et pour la mission d’une autre entreprise : elle ne peut pas deviner les identifiants des autres.
 
-## Pages Missions et Publier une mission (GitHub Pages)
+## Pages Prestations et Publier une prestation (GitHub Pages)
 
-GitHub Pages ne sert que des fichiers statiques : `missions*.html` et `post-task*.html` lisent un instantané produit par `bash db/scripts/export-demo.sh`. Le script applique les migrations sur une base jetable, charge `db/fixtures/dev.sql` et `db/demo/extra.sql` (données fictives), puis appelle les fonctions `api` :
+GitHub Pages ne sert que des fichiers statiques : `prestations.html` et `post-task.html` lisent un instantané produit par `bash db/scripts/export-demo.sh`. Le script applique les migrations sur une base jetable, charge `db/fixtures/dev.sql` et `db/demo/extra.sql` (données fictives), puis appelle les fonctions `api` :
 
-- pour chaque lieu proposé par la recherche (Strasbourg et ses quartiers, Colmar, les grandes villes…), un visiteur placé là, avec toutes les compétences et un rayon de 10 km : missions avant et après acceptation, missions d’exemple ;
-- pour cinq adresses du formulaire et chacun des vingt-quatre services : compteur et candidats.
+- pour chaque lieu proposé par la recherche (Strasbourg, ses quartiers, Schiltigheim et Illkirch), un visiteur placé là, avec toutes les compétences et un rayon de 10 km : missions avant et après acceptation, missions d’exemple ;
+- pour quatre adresses du formulaire et chacun des vingt-quatre services : compteur et candidats.
 
-Il écrit `assets/demo/missions.js` (données des deux pages) et `assets/demo/catalog.js` (lieux, familles et services, chargé par la barre de recherche sur toutes les pages).
+Il écrit `assets/demo/prestations.js` (données des deux pages) et `assets/demo/catalog.js` (lieux, familles et services, chargé par la barre de recherche sur toutes les pages).
 
 `localisation.js` ne rejoue que deux règles : combien d’exemples complètent une liste, et quels candidats proposent le service demandé. Le script échoue si ce rejeu diffère de ce que renvoie la base, et la CI vérifie que l’instantané committé est à jour (`export-demo.sh --check`).
 
