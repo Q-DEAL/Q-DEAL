@@ -68,7 +68,7 @@ DO $$
 DECLARE a record; r record;
 BEGIN
   SELECT * INTO a FROM api.accept_mission(5, 1);
-  ASSERT a.address_line = '14 rue des Bouchers, 3e étage', 'accept_mission did not return the address';
+  ASSERT a.address_line = 'Rue des Bouchers, appartement 3B', 'accept_mission did not return the address';
   SELECT * INTO r FROM api.missions_near_provider(5) WHERE mission_id = 1;
   ASSERT r.accepted AND r.precision_m = 0 AND r.address_line = a.address_line AND r.lon = a.lon AND r.lat = a.lat,
          'exact location missing after acceptance';

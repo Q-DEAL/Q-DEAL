@@ -2,9 +2,9 @@ name: Base de données
 
 on:
   push:
-    paths: ["db/**", ".github/workflows/db.yml"]
+    paths: ["db/**", "assets/demo/**", ".github/workflows/db.yml"]
   pull_request:
-    paths: ["db/**", ".github/workflows/db.yml"]
+    paths: ["db/**", "assets/demo/**", ".github/workflows/db.yml"]
 
 permissions:
   contents: read
@@ -37,3 +37,5 @@ jobs:
         run: sudo bash db/scripts/install-dbmate.sh /usr/local/bin/dbmate
       - name: Migrations and location rules
         run: bash db/scripts/test.sh
+      - name: Demo data matches the database
+        run: bash db/scripts/export-demo.sh --check

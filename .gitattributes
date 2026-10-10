@@ -2,3 +2,4 @@
 *.sql text eol=lf
 *.yml text eol=lf
 Dockerfile*  text eol=lf
+assets/demo/*.js text eol=lf

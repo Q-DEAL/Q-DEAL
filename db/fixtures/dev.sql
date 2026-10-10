@@ -44,9 +44,9 @@ SELECT business_id, title, description, address_line, postal_code, city,
        ST_SetSRID(ST_MakePoint(lon, lat), 4326)::geography, now() + starts_in, status
 FROM (VALUES
   (1, 'Check-in et remise des clés', 'Accueillir deux voyageurs et leur remettre les clés d’un appartement.',
-      '14 rue des Bouchers, 3e étage', '67000', 'Strasbourg', 7.7562, 48.5793, interval '2 days', 'published'),        -- 1
+      'Rue des Bouchers, appartement 3B', '67000', 'Strasbourg', 7.7562, 48.5793, interval '2 days', 'published'),        -- 1
   (1, 'Ménage entre deux locations', 'Ménage complet d’un T2 avant l’arrivée des prochains voyageurs.',
-      '8 quai des Pêcheurs', '67000', 'Strasbourg', 7.7598, 48.5812, interval '3 days', 'published'),                 -- 2
+      'Quai des Pêcheurs, studio 2', '67000', 'Strasbourg', 7.7598, 48.5812, interval '3 days', 'published'),                 -- 2
   (2, 'Rangement de matériel sur chantier', 'Trier et ranger l’outillage dans le conteneur de chantier.',
       'Rue du Port du Rhin, chantier B', '67100', 'Strasbourg', 7.7905, 48.5703, interval '1 day', 'published'),      -- 3
   (3, 'Mise en rayon avant ouverture', 'Réassort des rayons frais entre 6 h et 8 h.',
@@ -54,7 +54,7 @@ FROM (VALUES
   (4, 'Montage d’un salon professionnel', 'Montage de stands et manutention du mobilier.',
       'Parc des expositions, avenue Herrenschmidt', '67000', 'Strasbourg', 7.7680, 48.5950, interval '6 days', 'published'), -- 5
   (1, 'Accueil de voyageurs (terminée)', 'Mission passée, utilisée pour les avis.',
-      '3 rue de la Douane', '67000', 'Strasbourg', 7.7480, 48.5810, interval '-10 days', 'closed')                   -- 6
+      'Rue de la Douane, studio 4', '67000', 'Strasbourg', 7.7480, 48.5810, interval '-10 days', 'closed')                   -- 6
 ) AS v(business_id, title, description, address_line, postal_code, city, lon, lat, starts_in, status);
 
 INSERT INTO core.mission_skills (mission_id, skill_code) VALUES
