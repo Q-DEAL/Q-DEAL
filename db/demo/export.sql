@@ -7,8 +7,8 @@
 \set QUIET on
 SET client_min_messages = warning;
 
--- Places a visitor can search. A visitor is treated as a provider with every skill and a 10 km
--- radius standing at the place; only Strasbourg and its surroundings have (fictional) missions.
+-- Places a visitor can search: Strasbourg and its surroundings only, where the (fictional)
+-- missions are. A visitor is treated as a provider with every skill and a 10 km radius standing there.
 CREATE TEMP TABLE site_places (key text, label_fr text, label_en text, terms text[], lon float8, lat float8, ord int);
 INSERT INTO site_places VALUES
   ('strasbourg',             'Strasbourg',               'Strasbourg',               '{strasbourg,67000,67100,67200}', 7.7459, 48.5835, 1),
@@ -17,17 +17,7 @@ INSERT INTO site_places VALUES
   ('strasbourg-robertsau',   'Strasbourg · Robertsau',   'Strasbourg · Robertsau',   '{robertsau}',                     7.7820, 48.6000, 4),
   ('strasbourg-cronenbourg', 'Strasbourg · Cronenbourg', 'Strasbourg · Cronenbourg', '{cronenbourg}',                   7.7230, 48.5960, 5),
   ('schiltigheim',           'Schiltigheim',             'Schiltigheim',             '{schiltigheim,67300}',            7.7480, 48.6060, 6),
-  ('illkirch',               'Illkirch-Graffenstaden',   'Illkirch-Graffenstaden',   '{illkirch,67400}',                7.7150, 48.5290, 7),
-  ('haguenau',               'Haguenau',                 'Haguenau',                 '{haguenau,67500}',                7.7900, 48.8150, 8),
-  ('colmar',                 'Colmar',                   'Colmar',                   '{colmar,68000}',                  7.3585, 48.0779, 9),
-  ('mulhouse',               'Mulhouse',                 'Mulhouse',                 '{mulhouse,68100,68200}',          7.3389, 47.7508, 10),
-  ('paris',                  'Paris',                    'Paris',                    '{paris,75}',                      2.3522, 48.8566, 11),
-  ('lyon',                   'Lyon',                     'Lyon',                     '{lyon,69}',                       4.8357, 45.7640, 12),
-  ('marseille',              'Marseille',                'Marseille',                '{marseille,13}',                  5.3698, 43.2965, 13),
-  ('lille',                  'Lille',                    'Lille',                    '{lille,59}',                      3.0573, 50.6292, 14),
-  ('bordeaux',               'Bordeaux',                 'Bordeaux',                 '{bordeaux,33}',                  -0.5792, 44.8378, 15),
-  ('toulouse',               'Toulouse',                 'Toulouse',                 '{toulouse,31}',                   1.4442, 43.6047, 16),
-  ('nantes',                 'Nantes',                   'Nantes',                   '{nantes,44}',                    -1.5536, 47.2184, 17);
+  ('illkirch',               'Illkirch-Graffenstaden',   'Illkirch-Graffenstaden',   '{illkirch,67400}',                7.7150, 48.5290, 7);
 
 -- Addresses offered on the mission form (public places only).
 CREATE TEMP TABLE site_addresses (key text, address_line text, postal_code text, city text, lon float8, lat float8, ord int);
@@ -35,8 +25,7 @@ INSERT INTO site_addresses VALUES
   ('kleber',     'Place Kléber',             '67000', 'Strasbourg', 7.7459, 48.5835, 1),
   ('universite', 'Place de l’Université',    '67000', 'Strasbourg', 7.7616, 48.5841, 2),
   ('orangerie',  'Parc de l’Orangerie',      '67000', 'Strasbourg', 7.7760, 48.5915, 3),
-  ('neudorf',    'Place du Marché, Neudorf', '67100', 'Strasbourg', 7.7586, 48.5703, 4),
-  ('colmar',     'Place de la Cathédrale',   '68000', 'Colmar',     7.3585, 48.0779, 5);
+  ('neudorf',    'Place du Marché, Neudorf', '67100', 'Strasbourg', 7.7586, 48.5703, 4);
 
 CREATE TEMP TABLE site_out (k text PRIMARY KEY, v jsonb);
 CREATE TEMP TABLE site_config AS SELECT * FROM core.config;  -- settings as deployed, restored below

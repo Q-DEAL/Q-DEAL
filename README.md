@@ -7,10 +7,12 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `index.html` — accueil
 - `about-us.html` — présentation
 - `contact.html` — page contact
-- `missions.html` — missions autour d’un lieu : carte et liste
+- `devenir-prestataire.html` — page vide pour l’inscription des prestataires (bouton « Devenir prestataire »)
+- `demander-un-service.html` — page vide pour la demande d’un service (bouton « Demander un service »)
+- `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
 - `post-task.html` — publication d’une mission, compteur de prestataires et candidats
 
-Le site est en français uniquement ; les anciennes adresses `*-fr.html` redirigent vers ces pages.
+Le site est en français uniquement ; les anciennes adresses `*-fr.html` et `missions.html` redirigent vers ces pages.
 
 ## Voir le site en local
 
@@ -35,7 +37,7 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/).
 
 La base de données de la fonctionnalité de localisation et son environnement Codespaces sont décrits dans [db/README.md](db/README.md).
 
-La barre de recherche de l’en-tête ouvre le choix du service (catégorie « Ménage », quatre familles, vingt-quatre services) et du lieu, puis mène à `missions.html?service=…&lieu=…`. « Demander un service » mène à `post-task.html`. Ces pages (`localisation.js`) fonctionnent sans serveur, donc sur GitHub Pages : leurs données (`assets/demo/missions.js` et `assets/demo/catalog.js`) sont produites par les vraies fonctions de la base, sur des données fictives. Le catalogue des services est défini dans `db/migrations/20261010180000_cleaning_services.sql`. Après un changement dans `db/`, régénérez-les avec `bash db/scripts/export-demo.sh` (dans le Codespace), puis lancez `py scripts/version-assets.py`. La carte utilise Leaflet 1.9.4, copié dans `assets/vendor/`, et les fonds de carte OpenStreetMap (connexion internet nécessaire).
+La barre de recherche de l’en-tête ouvre le choix du service (catégorie « Ménage », quatre familles, vingt-quatre services) et du lieu, puis mène à `prestations.html?service=…&lieu=…`. « Demander un service » mène à `post-task.html`. Ces pages (`localisation.js`) fonctionnent sans serveur, donc sur GitHub Pages : leurs données (`assets/demo/prestations.js` et `assets/demo/catalog.js`) sont produites par les vraies fonctions de la base, sur des données fictives. Le catalogue des services est défini dans `db/migrations/20261010180000_cleaning_services.sql`. Après un changement dans `db/`, régénérez-les avec `bash db/scripts/export-demo.sh` (dans le Codespace), puis lancez `py scripts/version-assets.py`. La carte utilise Leaflet 1.9.4, copié dans `assets/vendor/`, et les fonds de carte OpenStreetMap (connexion internet nécessaire).
 
 ## Formulaire de contact
 
