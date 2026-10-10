@@ -167,7 +167,7 @@ document.querySelectorAll(".footer-column h2 button").forEach((button) => button
 }));
 
 /* Contact form: preselects the profile from ?type= and hands the message to the email app.
-   The recipient is the form's data-contact-email attribute. */
+   The recipient is the mailto: address in the form's action, which also works without this script. */
 const contactForm = document.querySelector("[data-contact-form]");
 if (contactForm) {
   const requestedType = new URLSearchParams(window.location.search).get("type");
@@ -193,7 +193,8 @@ if (contactForm) {
       data.get("message"),
     ].filter((line) => line !== null);
     const subject = `Q DEAL – ${labels.subject} ${profile.toLowerCase()} – ${data.get("name")}`;
-    const mailto = `mailto:${contactForm.dataset.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+    const recipient = contactForm.getAttribute("action").replace(/^mailto:/, "");
+    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
     contactForm.querySelector(".form-status").textContent = text.mailOpened;
     window.location.href = mailto;
   });
