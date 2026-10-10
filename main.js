@@ -208,7 +208,7 @@ function go() {
     serviceQuery.focus();
     return;
   }
-  window.location.href = `${missionsPage}?${params}`;
+  navigateWithLoader(`${missionsPage}?${params}`);
 }
 
 function openDialog() {
@@ -363,3 +363,51 @@ function setBotOpen(isOpen) {
 botLauncher.addEventListener("click", () => setBotOpen(botPanel.hidden));
 bot.querySelector(".qbot-close").addEventListener("click", () => { setBotOpen(false); botLauncher.focus(); });
 document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !botPanel.hidden) { setBotOpen(false); botLauncher.focus(); } });
+
+/* Écrans de chargement : une courte animation qdeal, de durée aléatoire, sur les passages clés du site. */
+const loaderSteps = [
+  { match: /^prestations\.html/, text: "On cherche les prestations autour de vous…" },
+  { match: /^(post-task|demander-un-service)\.html/, text: "On prépare votre demande de nettoyage…" },
+  { match: /^estimation\.html/, text: "On sort l’appareil photo…" },
+  { match: /^devenir-prestataire\.html/, text: "On prépare votre espace prestataire…" },
+  { match: /^student-portal\.html/, text: "Ouverture de votre espace étudiant…" },
+  { match: /^formations\.html/, text: "On rembobine les vidéos…" },
+  { match: /^fonctionnalites\.html/, text: "On range les outils sur l’étagère…" },
+  { match: /^suivi-administratif\.html/, text: "On trie le courrier administratif…" },
+];
+const loaderMarkup = `<div class="qd-loader-stage" aria-hidden="true">
+    <svg class="qd-loader-q" viewBox="0 0 120 120"><circle class="qd-loader-ring" cx="54" cy="54" r="34"/><path class="qd-loader-tail" d="M88 54v46"/></svg>
+    <span class="qd-loader-spark s1">✦</span><span class="qd-loader-spark s2">✦</span><span class="qd-loader-spark s3">✦</span>
+  </div>
+  <p class="qd-loader-text"></p>
+  <span class="qd-loader-bar"><i></i></span>`;
+function showLoader(message, duration) {
+  const loader = document.createElement("div");
+  loader.className = "qd-loader";
+  loader.setAttribute("role", "status");
+  loader.innerHTML = loaderMarkup;
+  loader.querySelector(".qd-loader-text").textContent = message;
+  loader.style.setProperty("--qd-duration", `${duration}ms`);
+  document.body.append(loader);
+  return loader;
+}
+function navigateWithLoader(url, message = "Un instant, on fait briller la page…") {
+  if (reduceMotion) { window.location.href = url; return; }
+  const duration = 450 + Math.round(Math.random() * 900);
+  showLoader(message, duration);
+  try { sessionStorage.setItem("qdeal.loader", "1"); } catch (error) { /* navigation sans transition d'arrivée */ }
+  setTimeout(() => { window.location.href = url; }, duration);
+}
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("a[href]");
+  if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === "_blank") return;
+  const href = link.getAttribute("href");
+  const page = href.split(/[?#]/)[0];
+  const current = window.location.pathname.split("/").pop() || "index.html";
+  if (!page || page === current) return;
+  const step = loaderSteps.find((item) => item.match.test(href));
+  if (!step) return;
+  event.preventDefault();
+  navigateWithLoader(href, step.text);
+});
+window.addEventListener("pageshow", (event) => { if (event.persisted) document.querySelectorAll(".qd-loader").forEach((el) => el.remove()); });
