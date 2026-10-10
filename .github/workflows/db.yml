@@ -1,0 +1,41 @@
+name: Base de données
+
+on:
+  push:
+    paths: ["db/**", "assets/demo/**", ".github/workflows/db.yml"]
+  pull_request:
+    paths: ["db/**", "assets/demo/**", ".github/workflows/db.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  migrations-and-rules:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgis:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: qdeal
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d qdeal"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: qdeal
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/qdeal?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dbmate
+        run: sudo bash db/scripts/install-dbmate.sh /usr/local/bin/dbmate
+      - name: Migrations and location rules
+        run: bash db/scripts/test.sh
+      - name: Demo data matches the database
+        run: bash db/scripts/export-demo.sh --check

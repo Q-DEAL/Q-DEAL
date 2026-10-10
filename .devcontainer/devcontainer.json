@@ -1,0 +1,30 @@
+{
+  "name": "Q DEAL · PostGIS (localisation)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "vscode",
+  "forwardPorts": [5432],
+  "portsAttributes": {
+    "5432": { "label": "PostGIS", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bash db/scripts/dev-setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["mtxr.sqltools", "mtxr.sqltools-driver-pg"],
+      "settings": {
+        "sqltools.connections": [
+          {
+            "name": "qdeal (PostGIS)",
+            "driver": "PostgreSQL",
+            "server": "localhost",
+            "port": 5432,
+            "database": "qdeal",
+            "username": "postgres",
+            "password": "postgres"
+          }
+        ]
+      }
+    }
+  }
+}
