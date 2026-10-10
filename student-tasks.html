@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Les prestations de ménage ouvertes autour de votre zone, filtrées par service, distance et compétences.">
+    <title>Trouver une prestation | Espace étudiant Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=322f5760">
+  </head>
+  <body class="portal-page" data-portal-page="tasks">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace étudiant"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Trouver une prestation</p>
+          <h1>Prestations ouvertes</h1>
+          <p class="sp-lede">Les prestations publiées autour de votre zone. Avant d’accepter, vous voyez le code postal et la ville ; l’adresse exacte apparaît une fois votre candidature envoyée.</p>
+        </section>
+
+        <form class="sp-filters" data-filters novalidate>
+          <h2 class="visually-hidden">Filtres</h2>
+          <div class="sp-filters-grid">
+            <div class="field"><label for="f-place">Zone</label><select id="f-place" name="lieu"></select></div>
+            <div class="field"><label for="f-service">Service</label><select id="f-service" name="service"></select></div>
+            <div class="field"><label for="f-radius">Distance maximum</label><select id="f-radius" name="rayon"></select></div>
+            <div class="field"><label for="f-q">Mot-clé</label><input id="f-q" name="q" type="search" placeholder="Titre, entreprise, service" autocomplete="off"></div>
+          </div>
+          <div class="sp-filters-foot">
+            <label class="consent"><input type="checkbox" name="qualified" value="1"> Seulement les prestations que je peux accepter</label>
+            <button class="button button-outline" type="reset">Réinitialiser les filtres</button>
+          </div>
+        </form>
+
+        <div class="sp-results-head">
+          <p class="sp-summary" data-summary></p>
+          <ul class="sp-chips" data-chips></ul>
+        </div>
+        <ol class="sp-cards" data-list></ol>
+      </main>
+    </div>
+    <script src="assets/demo/prestations.js?v=927be1d6"></script>
+    <script src="portal.js?v=574d83de"></script>
+  </body>
+</html>

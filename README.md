@@ -9,6 +9,7 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `contact.html` — page contact
 - `devenir-prestataire.html` — page vide pour l’inscription des prestataires (bouton « Devenir prestataire »)
 - `demander-un-service.html` — page vide pour la demande d’un service (bouton « Demander un service »)
+- `student-portal.html` — espace étudiant (voir plus bas)
 - `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
 - `post-task.html` — publication d’une mission, compteur de prestataires et candidats
 
@@ -32,6 +33,12 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/).
 - Après une modification d’un fichier CSS ou JS, lancez `py scripts/version-assets.py` : il met à jour le `?v=` qui suit leur nom dans toutes les pages. GitHub Pages les met en cache 10 minutes, et une page à jour avec une ancienne feuille de style s’affiche cassée.
 - `assets/images/` contient le logo (`qdeal-logo.svg`), le favicon et les images.
 - Les polices Inter et Manrope sont chargées depuis Google Fonts, donc leur chargement demande une connexion internet.
+
+## Espace étudiant
+
+Les pages `student-*.html` forment l’espace du prestataire : tableau de bord (`student-portal.html`), recherche de prestations (`student-tasks.html`) et détail (`student-task.html`), candidatures, planning, suivi administratif, profil et notifications. On y accède par le lien « Espace étudiant » du menu « Prestations ». Tout est rendu par `portal.js`, à partir du même instantané que `prestations.html` (`assets/demo/prestations.js`).
+
+C’est une démonstration sans compte ni serveur : l’étudiant est choisi dans le menu de session (en haut à droite), et ses candidatures, son profil et son dossier sont enregistrés dans le navigateur (clé `localStorage` `qdeal.portal.v1`, effaçable par « Réinitialiser cet espace »). Les règles de la base sont rejouées : compétences requises (QD003), rayon de déplacement (QD004), prestations d’exemple non acceptables, adresse exacte révélée après candidature. Les documents administratifs ne sont jamais envoyés : seul le nom du fichier choisi est noté.
 
 ## Localisation (PostGIS)
 

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Vos informations personnelles, votre zone de déplacement, vos compétences et vos disponibilités sur Q DEAL.">
+    <title>Mon profil | Espace étudiant Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=322f5760">
+  </head>
+  <body class="portal-page" data-portal-page="profile">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace étudiant"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Mon profil</p>
+          <h1>Mes informations</h1>
+          <p class="sp-lede">Les entreprises ne voient que votre prénom, vos compétences, votre note et votre distance à la prestation. Le reste sert à vous proposer les bonnes prestations.</p>
+        </section>
+
+        <form class="sp-form" data-profile-form novalidate>
+          <section class="sp-block" aria-labelledby="sp-identity-title">
+            <div class="sp-block-head"><h2 id="sp-identity-title">Informations personnelles</h2></div>
+            <div data-identity></div>
+          </section>
+
+          <section class="sp-block" aria-labelledby="sp-contact-title">
+            <div class="sp-block-head"><h2 id="sp-contact-title">Coordonnées</h2></div>
+            <div data-contact></div>
+          </section>
+
+          <section class="sp-block" aria-labelledby="sp-zone-title">
+            <div class="sp-block-head"><h2 id="sp-zone-title">Zone et disponibilités</h2></div>
+            <div data-zone></div>
+          </section>
+
+          <section class="sp-block" aria-labelledby="sp-skills-title">
+            <div class="sp-block-head"><h2 id="sp-skills-title">Compétences</h2></div>
+            <div data-skills></div>
+          </section>
+
+          <section class="sp-block" aria-labelledby="sp-experience-title">
+            <div class="sp-block-head"><h2 id="sp-experience-title">Expérience</h2></div>
+            <div data-experience></div>
+          </section>
+
+          <div class="form-actions sp-form-actions">
+            <button class="button button-dark" type="submit">Enregistrer</button>
+            <button class="button button-outline" type="reset">Annuler les modifications</button>
+            <p class="form-status" data-profile-status role="status"></p>
+          </div>
+        </form>
+      </main>
+    </div>
+    <script src="assets/demo/prestations.js?v=927be1d6"></script>
+    <script src="portal.js?v=574d83de"></script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="L’avancement de votre dossier administratif Q DEAL : documents demandés, statuts et pièces restant à fournir.">
+    <title>Suivi administratif | Espace étudiant Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=322f5760">
+  </head>
+  <body class="portal-page" data-portal-page="documents">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace étudiant"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Suivi administratif</p>
+          <h1>Mon dossier</h1>
+          <p class="sp-lede">Un dossier complet est demandé avant votre première prestation. Vos documents ne sont jamais déposés sur ce site : la transmission se fait par l’espace sécurisé de Q DEAL.</p>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-dossier-state-title">
+          <div class="sp-block-head"><h2 id="sp-dossier-state-title">Avancement</h2></div>
+          <div data-dossier-progress></div>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-docs-title">
+          <div class="sp-block-head"><h2 id="sp-docs-title">Documents demandés</h2></div>
+          <ul class="sp-docs" data-docs></ul>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-docs-legend-title">
+          <div class="sp-block-head"><h2 id="sp-docs-legend-title">Ce que veulent dire les statuts</h2></div>
+          <ul class="sp-legend-list" data-doc-legend></ul>
+        </section>
+      </main>
+    </div>
+    <script src="assets/demo/prestations.js?v=927be1d6"></script>
+    <script src="portal.js?v=574d83de"></script>
+  </body>
+</html>
