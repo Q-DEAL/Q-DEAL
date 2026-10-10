@@ -7,6 +7,7 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `index.html` — accueil
 - `about-us.html` — présentation
 - `contact.html` — page contact
+- `devenir-prestataire.html` — page vide pour l’inscription des prestataires (bouton « Devenir prestataire »)
 - `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
 - `post-task.html` — publication d’une mission, compteur de prestataires et candidats
 

@@ -135,7 +135,7 @@ h1,h2,h3,p { margin-top:0; } h1,h2,h3 { letter-spacing:-.035em; line-height:1.04
 .loc-place-form input:focus { border-color:var(--orange); outline:none; box-shadow:0 0 0 3px rgba(241,90,59,.2); }.loc-place-form .button { min-height:52px; }
 .loc-place-chips { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 0; padding:0; list-style:none; }
 .loc-place-chips button { min-height:38px; padding:7px 15px; border:1px solid var(--line); border-radius:999px; background:#fff; font-size:.86rem; font-weight:700; transition:border-color .18s ease,color .18s ease; }.loc-place-chips button:hover { color:var(--orange-text); border-color:var(--orange); }
-.loc-results { padding-bottom:110px; }
+.loc-results { padding-bottom:110px; }.provider-page .loc-hero { padding-bottom:110px; }
 .loc-results-head { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin-bottom:14px; }.loc-summary { margin:0; font-size:1.05rem; font-weight:800; }.loc-keyword { display:inline-flex; align-items:center; gap:8px; min-height:34px; padding:5px 12px; border:0; border-radius:999px; color:#fff; background:var(--ink); font-size:.82rem; font-weight:700; }.loc-keyword span { font-size:1.05rem; line-height:1; }
 .loc-layout { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; }
 .loc-map { height:600px; overflow:hidden; border:1px solid var(--line); border-radius:20px; background:var(--pale); }.loc-map .leaflet-tile-pane { filter:grayscale(.85) contrast(.95) brightness(1.04); }
