@@ -67,16 +67,6 @@ navItems.forEach((item) => {
   item.querySelectorAll(".nav-panel a").forEach((link) => link.addEventListener("click", () => closeNavPanels()));
 });
 
-/* Header search: missions around a place first (assets/demo/places.js), then the site's pages and
-   sections; any other text searches the missions by keyword. */
-const searchForm = document.querySelector("[data-site-search]");
-const searchInput = searchForm.querySelector("input");
-const searchResults = searchForm.querySelector(".search-results");
-const missionsPage = searchForm.getAttribute("action");
-const searchText = isFrench
-  ? { near: (place) => `Missions près de ${place}`, count: (n) => `${n} ${n > 1 ? "missions" : "mission"}`, examples: "Exemples de missions", keyword: (q) => `Missions « ${q} »`, keywordHint: "Rechercher dans les missions" }
-  : { near: (place) => `Tasks near ${place}`, count: (n) => `${n} ${n > 1 ? "tasks" : "task"}`, examples: "Example tasks", keyword: (q) => `“${q}” tasks`, keywordHint: "Search the tasks" };
-
 // Best matches first: exact name, exact postcode, then names or postcodes starting with the text.
 function rankPlaces(query, places) {
   const q = normalize(query);
@@ -93,97 +83,170 @@ function rankPlaces(query, places) {
 }
 window.QDEAL_SEARCH = { normalize, rankPlaces };
 
-function placeEntries(query) {
-  return rankPlaces(query, window.QDEAL_PLACES || []).slice(0, 4).map((place) => ({
-    href: `${missionsPage}?lieu=${encodeURIComponent(place.key)}`,
-    label: searchText.near(isFrench ? place.labelFr : place.labelEn),
-    group: place.missionCount ? searchText.count(place.missionCount) : searchText.examples,
-  }));
+/* Search dialog: a cleaning service (assets/demo/catalog.js) and a place. Opened from the header
+   field on every page; leads to the missions page with ?service=…&lieu=… */
+const catalog = window.QDEAL_CATALOG || { places: [], groups: [], services: [] };
+const dialog = document.querySelector("#search-dialog");
+const openers = document.querySelectorAll("[data-open-search]");
+const summary = document.querySelector("[data-search-summary]");
+const missionsPage = openers[0].dataset.missionsPage;
+const serviceQuery = dialog.querySelector("#service-query");
+const placeQuery = dialog.querySelector("#service-place");
+const list = dialog.querySelector("[data-service-list]");
+const crumbRoot = dialog.querySelector("[data-crumb-root]");
+const crumbGroup = dialog.querySelector("[data-crumb-group]");
+const searchText = isFrench
+  ? { noService: "Aucun service ne correspond.", selected: "Service choisi", placeholder: serviceQuery.placeholder }
+  : { noService: "No matching service.", selected: "Selected service", placeholder: serviceQuery.placeholder };
+const label = (item) => (isFrench ? item.fr : item.en);
+const placeLabel = (place) => (isFrench ? place.labelFr : place.labelEn);
+const ICONS = {
+  menage: '<path d="M14 3l6.5 6.5"/><path d="M11 6l7 7"/><path d="M4 20c.3-4.3 2.3-7 5.5-8.7l3.2 3.2C11 17.7 8.3 19.7 4 20z"/>',
+  electromenager: '<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13.5" r="4.2"/><circle cx="7.8" cy="6.6" r=".9"/><path d="M11 6.6h6"/>',
+  textile: '<path d="M5.5 11V8.5A2.5 2.5 0 0 1 8 6h8a2.5 2.5 0 0 1 2.5 2.5V11"/><path d="M3 13.5A2 2 0 0 1 5 11.5h0a2 2 0 0 1 2 2V15h10v-1.5a2 2 0 0 1 4 0V18a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/><path d="M6.5 19.5V21M17.5 19.5V21"/>',
+  voiture: '<path d="M5 13l1.6-4.6A2 2 0 0 1 8.5 7h7a2 2 0 0 1 1.9 1.4L19 13"/><rect x="3" y="13" width="18" height="5.5" rx="1.5"/><circle cx="7.5" cy="15.8" r="1"/><circle cx="16.5" cy="15.8" r="1"/><path d="M6 18.5V20M18 18.5V20"/>',
+};
+const CHEVRON = '<svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m6 3.5 4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHECK = '<svg class="check" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+let currentGroup = null;
+let selectedService = null;
+
+catalog.places.forEach((place) => dialog.querySelector("#search-dialog-places").append(new Option(placeLabel(place))));
+
+// On the missions page the header field shows the current search.
+const pageParams = new URLSearchParams(window.location.search);
+const paramService = catalog.services.find((service) => service.code === pageParams.get("service"));
+const paramPlace = catalog.places.find((place) => place.key === pageParams.get("lieu")) || rankPlaces(pageParams.get("lieu") || "", catalog.places)[0];
+if (paramService) {
+  selectedService = paramService.code;
+  currentGroup = paramService.group;
+}
+if (paramPlace) placeQuery.value = placeLabel(paramPlace);
+updateSummary();
+
+function updateSummary() {
+  const service = catalog.services.find((item) => item.code === selectedService);
+  const parts = [service && label(service), paramPlace && placeLabel(paramPlace)].filter(Boolean);
+  summary.textContent = parts.length ? parts.join(" · ") : searchText.placeholder;
+  openers.forEach((opener) => opener.classList.toggle("has-value", parts.length > 0));
 }
 
-function keywordEntry(query) {
-  return { href: `${missionsPage}?q=${encodeURIComponent(query.trim())}`, label: searchText.keyword(query.trim()), group: searchText.keywordHint };
+function row(content, onClick, extra = "") {
+  const li = document.createElement("li");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `search-dialog-row${extra}`;
+  button.innerHTML = content;
+  button.addEventListener("click", onClick);
+  li.append(button);
+  return li;
 }
 
-const searchIndex = [];
-siteMenu.querySelectorAll(".menu-grid section").forEach((section) => {
-  section.querySelectorAll("a").forEach((link) => {
-    if (searchIndex.some((entry) => entry.href === link.getAttribute("href"))) return;
-    const group = section.querySelector("h2").textContent;
-    searchIndex.push({
-      href: link.getAttribute("href"),
-      label: link.textContent,
-      group,
-      haystack: normalize(`${link.textContent} ${group} ${link.dataset.keywords || ""}`),
+function iconFor(group) {
+  return `<span class="search-dialog-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[group.code] || ""}</svg></span>`;
+}
+
+function serviceRow(service, withGroup) {
+  const group = catalog.groups.find((item) => item.code === service.group);
+  const selected = service.code === selectedService;
+  const text = `<span>${label(service)}${withGroup && group ? `<small>${label(group)}</small>` : ""}</span>${selected ? CHECK : ""}`;
+  return row(text, () => selectService(service.code), selected ? " is-selected" : "");
+}
+
+function renderList() {
+  const query = normalize(serviceQuery.value);
+  const chosen = catalog.services.find((item) => item.code === selectedService);
+  const typedIsSelection = chosen && normalize(label(chosen)) === query;
+  list.replaceChildren();
+  if (query && !typedIsSelection) {
+    const matches = catalog.services.filter((service) => {
+      const group = catalog.groups.find((item) => item.code === service.group);
+      return normalize(`${label(service)} ${group ? label(group) : ""}`).includes(query);
     });
-  });
-});
-
-function findMatches(query) {
-  const words = normalize(query).split(/\s+/).filter(Boolean);
-  if (!words.length) return [];
-  const places = placeEntries(query);
-  const pages = searchIndex.filter((entry) => words.every((word) => entry.haystack.includes(word)));
-  const keyword = !places.length && normalize(query).length >= 3 ? [keywordEntry(query)] : [];
-  return [...places, ...pages, ...keyword].slice(0, 6);
-}
-
-function renderResults() {
-  const query = searchInput.value;
-  if (!query.trim()) {
-    searchResults.hidden = true;
-    searchResults.replaceChildren();
+    crumbGroup.hidden = true;
+    if (!matches.length) {
+      const empty = document.createElement("li");
+      empty.className = "search-empty";
+      empty.textContent = searchText.noService;
+      list.append(empty);
+      return;
+    }
+    list.append(...matches.map((service) => serviceRow(service, true)));
     return;
   }
-  const matches = findMatches(query);
-  if (!matches.length) {
-    const empty = document.createElement("p");
-    empty.className = "search-empty";
-    empty.textContent = text.noResult;
-    searchResults.replaceChildren(empty);
-  } else {
-    searchResults.replaceChildren(...matches.map((entry) => {
-      const link = document.createElement("a");
-      link.href = entry.href;
-      const label = document.createElement("span");
-      label.textContent = entry.label;
-      const group = document.createElement("small");
-      group.textContent = entry.group;
-      link.append(label, group);
-      link.addEventListener("click", () => { searchResults.hidden = true; });
-      return link;
-    }));
+  if (currentGroup) {
+    const group = catalog.groups.find((item) => item.code === currentGroup);
+    crumbGroup.textContent = label(group);
+    crumbGroup.hidden = false;
+    list.append(...catalog.services.filter((service) => service.group === currentGroup).map((service) => serviceRow(service, false)));
+    return;
   }
-  searchResults.hidden = false;
+  crumbGroup.hidden = true;
+  list.append(...catalog.groups.map((group) => row(`${iconFor(group)}<span>${label(group)}</span>${CHEVRON}`, () => {
+    currentGroup = group.code;
+    renderList();
+    list.querySelector("button")?.focus();
+  })));
 }
 
-searchInput.addEventListener("input", renderResults);
-searchInput.addEventListener("focus", renderResults);
-searchInput.addEventListener("keydown", (event) => {
+function selectService(code) {
+  const service = catalog.services.find((item) => item.code === code);
+  selectedService = code;
+  currentGroup = service.group;
+  serviceQuery.value = label(service);
+  renderList();
+  placeQuery.focus();
+}
+
+function go() {
+  const params = new URLSearchParams();
+  if (selectedService) params.set("service", selectedService);
+  const place = placeQuery.value.trim();
+  if (place) params.set("lieu", place);
+  if (!selectedService && !place) {
+    serviceQuery.focus();
+    return;
+  }
+  window.location.href = `${missionsPage}?${params}`;
+}
+
+function openDialog() {
+  if (dialog.open) return;
+  renderList();
+  dialog.showModal();
+  serviceQuery.focus();
+  serviceQuery.select();
+}
+
+openers.forEach((opener) => opener.addEventListener("click", openDialog));
+dialog.querySelector(".search-dialog-close").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+crumbRoot.addEventListener("click", () => { currentGroup = null; serviceQuery.value = ""; renderList(); serviceQuery.focus(); });
+serviceQuery.addEventListener("input", () => {
+  if (selectedService && normalize(serviceQuery.value) !== normalize(label(catalog.services.find((item) => item.code === selectedService)))) selectedService = null;
+  renderList();
+});
+serviceQuery.addEventListener("keydown", (event) => {
   if (event.key === "ArrowDown") {
-    const first = searchResults.querySelector("a");
+    const first = list.querySelector("button");
     if (first) { event.preventDefault(); first.focus(); }
   }
-});
-searchResults.addEventListener("keydown", (event) => {
-  const links = [...searchResults.querySelectorAll("a")];
-  const index = links.indexOf(document.activeElement);
-  if (event.key === "ArrowDown" && index < links.length - 1) { event.preventDefault(); links[index + 1].focus(); }
-  if (event.key === "ArrowUp") { event.preventDefault(); (index > 0 ? links[index - 1] : searchInput).focus(); }
-});
-searchForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const [first] = findMatches(searchInput.value);
-  if (first) {
-    searchResults.hidden = true;
-    window.location.href = first.href;
-  } else {
-    renderResults();
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const buttons = list.querySelectorAll("button");
+    if (selectedService) placeQuery.focus();
+    else if (buttons.length === 1) buttons[0].click();
   }
 });
-searchForm.addEventListener("focusout", (event) => {
-  if (!searchForm.contains(event.relatedTarget)) searchResults.hidden = true;
+list.addEventListener("keydown", (event) => {
+  const buttons = [...list.querySelectorAll("button")];
+  const index = buttons.indexOf(document.activeElement);
+  if (event.key === "ArrowDown" && index < buttons.length - 1) { event.preventDefault(); buttons[index + 1].focus(); }
+  if (event.key === "ArrowUp") { event.preventDefault(); (index > 0 ? buttons[index - 1] : serviceQuery).focus(); }
 });
+placeQuery.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); go(); } });
+dialog.querySelector("[data-search-go]").addEventListener("click", go);
 
 document.addEventListener("click", (event) => {
   if (!event.target.closest(".nav-item.has-panel")) closeNavPanels();
@@ -192,7 +255,6 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (menuToggle.getAttribute("aria-expanded") === "true") setMenuOpen(false);
   closeNavPanels();
-  searchResults.hidden = true;
 });
 
 /* Footer accordions (mobile) */

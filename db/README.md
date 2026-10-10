@@ -21,7 +21,7 @@ Si GitHub refuse la création, l’organisation Q-DEAL doit autoriser Codespaces
 
 | | Contenu | Environnements |
 | --- | --- | --- |
-| `db/migrations/` | Tables, règles, fonctions, droits, données de référence (compétences, missions d’exemple, réglages) | Tous, production comprise |
+| `db/migrations/` | Tables, règles, fonctions, droits, données de référence (catalogue des services de ménage, missions d’exemple, réglages) | Tous, production comprise |
 | `db/fixtures/dev.sql` | Entreprises, prestataires et missions fictifs | Développement et tests uniquement |
 
 `dev-setup.sh` refuse de s’exécuter sur une base qui n’est pas locale : les données fictives ne peuvent pas partir en production par erreur.
@@ -92,11 +92,11 @@ Une entreprise reçoit la même erreur pour une mission inexistante et pour la m
 GitHub Pages ne sert que des fichiers statiques : `missions*.html` et `post-task*.html` lisent un instantané produit par `bash db/scripts/export-demo.sh`. Le script applique les migrations sur une base jetable, charge `db/fixtures/dev.sql` et `db/demo/extra.sql` (données fictives), puis appelle les fonctions `api` :
 
 - pour chaque lieu proposé par la recherche (Strasbourg et ses quartiers, Colmar, les grandes villes…), un visiteur placé là, avec toutes les compétences et un rayon de 10 km : missions avant et après acceptation, missions d’exemple ;
-- pour cinq adresses du formulaire et toutes les combinaisons de compétences : compteur et candidats.
+- pour cinq adresses du formulaire et chacun des vingt-quatre services : compteur et candidats.
 
-Il écrit `assets/demo/missions.js` (données des deux pages) et `assets/demo/places.js` (index des lieux, chargé par la recherche sur toutes les pages).
+Il écrit `assets/demo/missions.js` (données des deux pages) et `assets/demo/catalog.js` (lieux, familles et services, chargé par la barre de recherche sur toutes les pages).
 
-`localisation.js` ne rejoue que deux règles : combien d’exemples complètent une liste, et quels candidats ont les compétences demandées. Le script échoue si ce rejeu diffère de ce que renvoie la base, et la CI vérifie que l’instantané committé est à jour (`export-demo.sh --check`).
+`localisation.js` ne rejoue que deux règles : combien d’exemples complètent une liste, et quels candidats proposent le service demandé. Le script échoue si ce rejeu diffère de ce que renvoie la base, et la CI vérifie que l’instantané committé est à jour (`export-demo.sh --check`).
 
 Les pages indiquent qu’il s’agit de missions et de prestataires fictifs. Leurs adresses ne désignent aucun logement précis : lieux publics, ou rue avec un numéro d’appartement fictif.
 

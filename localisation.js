@@ -19,7 +19,7 @@
       summaryExamples: (e) => `Pas encore de mission dans ce secteur : voici ${e} ${plural(e, "exemple", "exemples")} de missions proposées sur Q DEAL`,
       summaryNone: (q) => `Aucune mission « ${q} » dans ce secteur pour l’instant`,
       placeNotFound: (q) => `Aucun lieu trouvé pour « ${q} ». Essayez une ville ou un code postal.`,
-      keyword: (q) => `Mot-clé : ${q}`, removeKeyword: "Retirer le mot-clé",
+      keyword: (q) => `Mot-clé : ${q}`, removeKeyword: "Retirer le filtre",
       badgeMission: "Mission", badgeExample: "Exemple", badgeAccepted: "Acceptée",
       approxPlace: (pc, city) => `${pc} ${city} · position à 1 km près`,
       exampleNote: "Mission d’exemple : les vraies missions du secteur la remplaceront.",
@@ -35,7 +35,7 @@
       needAddress: "Indiquez l’adresse de la mission",
       needAddressHint: "Vous verrez combien de prestataires qualifiés sont à proximité.",
       unknownAddress: "Choisissez une adresse dans la liste proposée.",
-      needSkill: "Choisissez au moins une compétence",
+      needSkill: "Choisissez un service",
       needSkillHint: "Le nombre de prestataires qualifiés s’affiche aussitôt.",
       needTitle: "Donnez un titre à la mission.",
       needDate: "Choisissez une date.",
@@ -54,7 +54,7 @@
       summaryExamples: (e) => `No task in this area yet: here ${plural(e, "is", "are")} ${e} ${plural(e, "example", "examples")} of tasks posted on Q DEAL`,
       summaryNone: (q) => `No “${q}” task in this area for now`,
       placeNotFound: (q) => `No place found for “${q}”. Try a city or a postcode.`,
-      keyword: (q) => `Keyword: ${q}`, removeKeyword: "Remove the keyword",
+      keyword: (q) => `Keyword: ${q}`, removeKeyword: "Remove the filter",
       badgeMission: "Task", badgeExample: "Example", badgeAccepted: "Accepted",
       approxPlace: (pc, city) => `${pc} ${city} · location within 1 km`,
       exampleNote: "Example task: real tasks in the area will replace it.",
@@ -70,7 +70,7 @@
       needAddress: "Enter the task address",
       needAddressHint: "You will see how many qualified providers are nearby.",
       unknownAddress: "Choose an address from the list.",
-      needSkill: "Choose at least one skill",
+      needSkill: "Choose a service",
       needSkillHint: "The number of qualified providers appears right away.",
       needTitle: "Give the task a title.",
       needDate: "Choose a date.",
@@ -143,6 +143,7 @@
       place = findPlace(keyword);
       keyword = "";
     }
+    let serviceCode = data.skills.some((skill) => skill.code === params.get("service")) ? params.get("service") : "";
 
     function responsesOf(p) {
       if (!responses.has(p.key)) responses.set(p.key, new Map());
@@ -158,14 +159,19 @@
         .map((m) => (answered.get(m.id) === "accepted" ? { ...m, ...p.acceptedState[m.id], accepted: true } : { ...m, accepted: false }))
         .map((m) => ({ ...m, key: `m${m.id}` }))
         .sort(byDistance);
-      const open = real.filter((m) => !m.accepted).length;
-      const examples = p.examples
-        .slice(0, Math.max(0, data.config.examplesTarget - open))
-        .map((e) => ({ ...e, key: `e${e.exampleId}`, isExample: true, title: lang === "fr" ? e.titleFr : e.titleEn }))
-        .sort(byDistance);
       const q = normalize(keyword);
-      const matches = (row) => !q || normalize(`${row.title} ${row.business || ""} ${row.skills.map((c) => skillLabel.get(c)).join(" ")}`).includes(q);
-      return [...real.filter(matches), ...examples.filter(matches)];
+      const matches = (row) => (!serviceCode || row.skills.includes(serviceCode))
+        && (!q || normalize(`${row.title} ${row.business || ""} ${row.skills.map((c) => skillLabel.get(c)).join(" ")}`).includes(q));
+      // With a service chosen, the top-up counts the open missions of that service only, so a
+      // service without missions in the area still shows its examples.
+      const shownReal = real.filter(matches);
+      const open = shownReal.filter((m) => !m.accepted).length;
+      const examples = p.examples
+        .map((e) => ({ ...e, key: `e${e.exampleId}`, isExample: true, title: lang === "fr" ? e.titleFr : e.titleEn }))
+        .filter(matches)
+        .slice(0, Math.max(0, data.config.examplesTarget - open))
+        .sort(byDistance);
+      return [...shownReal, ...examples];
     }
 
     function focusCard(key) {
@@ -250,23 +256,27 @@
       const examples = rows.length - real;
       title.textContent = placeLabel(place);
       document.title = T.pageTitle(placeLabel(place));
-      summary.textContent = !rows.length ? T.summaryNone(keyword)
+      const serviceName = serviceCode ? skillLabel.get(serviceCode) : "";
+      summary.textContent = !rows.length ? T.summaryNone(keyword || serviceName)
         : !examples ? T.summaryReal(real) : real ? T.summaryMixed(real, examples) : T.summaryExamples(examples);
       keywordBox.replaceChildren();
-      if (keyword) {
-        const chip = el("button", "loc-keyword", T.keyword(keyword));
-        chip.type = "button";
-        chip.setAttribute("aria-label", `${T.keyword(keyword)} · ${T.removeKeyword}`);
-        chip.append(el("span", "", "×"));
-        chip.addEventListener("click", () => { keyword = ""; syncUrl(); render(false); });
-        keywordBox.append(chip);
-      }
+      const chip = (text, remove) => {
+        const button = el("button", "loc-keyword", text);
+        button.type = "button";
+        button.setAttribute("aria-label", `${text} · ${T.removeKeyword}`);
+        button.append(el("span", "", "×"));
+        button.addEventListener("click", () => { remove(); syncUrl(); render(false); });
+        keywordBox.append(button);
+      };
+      if (serviceCode) chip(serviceName, () => { serviceCode = ""; });
+      if (keyword) chip(T.keyword(keyword), () => { keyword = ""; });
       list.replaceChildren(...rows.map(missionCard));
       drawMap(rows, refit);
     }
 
     function syncUrl() {
       const next = new URLSearchParams({ lieu: place.key });
+      if (serviceCode) next.set("service", serviceCode);
       if (keyword) next.set("q", keyword);
       history.replaceState(null, "", `${window.location.pathname}?${next}`);
     }
@@ -320,14 +330,24 @@
 
     const datalist = form.querySelector("datalist");
     data.business.addresses.forEach((address) => datalist.append(new Option(address.label)));
-    data.skills.forEach((skill) => {
-      const label = el("label");
-      const input = el("input");
-      input.type = "checkbox";
-      input.name = "skills";
-      input.value = skill.code;
-      label.append(input, el("span", "", skill[lang]));
-      skillBox.append(label);
+    const groupsBox = form.querySelector("[data-service-groups]");
+    const requested = new URLSearchParams(window.location.search).get("service");
+    data.groups.forEach((group) => {
+      const block = el("div", "loc-service-group");
+      block.append(el("span", "", group[lang]));
+      const choices = el("div");
+      data.skills.filter((skill) => skill.group === group.code).forEach((skill) => {
+        const label = el("label");
+        const input = el("input");
+        input.type = "radio";
+        input.name = "service";
+        input.value = skill.code;
+        input.defaultChecked = skill.code === requested;
+        label.append(input, el("span", "", skill[lang]));
+        choices.append(label);
+      });
+      block.append(choices);
+      groupsBox.append(block);
     });
     form.elements.date.min = isoDate(1);
 
@@ -335,8 +355,7 @@
       const typed = normalize(addressInput.value);
       return data.business.addresses.find((address) => normalize(address.label) === typed) || null;
     };
-    const selectedSkills = () => [...skillBox.querySelectorAll("input:checked")].map((input) => input.value);
-    const skillMask = (codes) => data.skills.reduce((mask, skill, index) => (codes.includes(skill.code) ? mask | (1 << index) : mask), 0);
+    const selectedService = () => skillBox.querySelector("input:checked")?.value || null;
 
     function setCounter(main, hint, low) {
       counter.classList.toggle("is-low", low);
@@ -347,10 +366,10 @@
 
     function renderCounter() {
       const address = selectedAddress();
-      const codes = selectedSkills();
+      const code = selectedService();
       if (!address) return setCounter(T.needAddress, addressInput.value.trim() ? T.unknownAddress : T.needAddressHint, false);
-      if (!codes.length) return setCounter(T.needSkill, T.needSkillHint, false);
-      const count = address.counts[skillMask(codes)];
+      if (!code) return setCounter(T.needSkill, T.needSkillHint, false);
+      const count = address.counts[code];
       return count === null
         ? setCounter(T.fewer(data.config.countDisplayMin), T.fewerHint, true)
         : setCounter(T.count(count), T.countHint, false);
@@ -387,10 +406,10 @@
       event.preventDefault();
       const title = form.elements.title.value.trim();
       const address = selectedAddress();
-      const codes = selectedSkills();
+      const code = selectedService();
       const problem = !title ? [T.needTitle, form.elements.title]
         : !address ? [T.unknownAddress, addressInput]
-        : !codes.length ? [T.needSkill, skillBox.querySelector("input")]
+        : !code ? [T.needSkill, skillBox.querySelector("input")]
         : !form.elements.date.value ? [T.needDate, form.elements.date] : null;
       if (problem) {
         live.textContent = problem[0];
@@ -405,14 +424,14 @@
       result.focus();
 
       // Providers answer over time on the platform; here the fictional ones who would accept arrive one by one.
-      const accepted = address.candidates.filter((candidate) => codes.every((code) => candidate.skills.includes(code)));
+      const accepted = address.candidates.filter((candidate) => candidate.skills.includes(code));
       if (!accepted.length) {
         timers.push(setTimeout(() => { status.textContent = T.noApplicants; }, 1800));
         return;
       }
       accepted.forEach((candidate, index) => {
         timers.push(setTimeout(() => {
-          applicantsList.append(applicantCard(candidate, codes));
+          applicantsList.append(applicantCard(candidate, [code]));
           status.textContent = T.applicants(index + 1);
         }, 1600 + 900 * index));
       });

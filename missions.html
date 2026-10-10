@@ -11,19 +11,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/vendor/leaflet-1.9.4/leaflet.css?v=340720ef">
-    <link rel="stylesheet" href="styles.css?v=df7e0f35">
+    <link rel="stylesheet" href="styles.css?v=675292fc">
   </head>
   <body class="subpage missions-page">
     <a class="skip-link" href="#main">Skip to main content</a>
     <header class="site-header">
       <div class="header-main">
         <a class="wordmark" href="index.html#top"><img src="assets/images/qdeal-logo.svg" alt="Q DEAL" width="954" height="323"></a>
-        <form class="header-search" role="search" action="missions.html" data-site-search>
-          <label class="visually-hidden" for="header-search">Search tasks or pages</label>
-          <input id="header-search" type="search" name="q" placeholder="City, postcode, task…" autocomplete="off" aria-controls="header-search-results">
-          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m16 16 5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
-          <div class="search-results" id="header-search-results" hidden></div>
-        </form>
+        <button class="header-search" type="button" data-open-search data-missions-page="missions.html" aria-haspopup="dialog" aria-controls="search-dialog"><span class="header-search-text" data-search-summary>What service do you need?</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m16 16 5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
         <div class="header-actions"><a class="button button-outline" href="contact.html?type=worker#contact-form">Become a provider</a><a class="button button-dark" href="post-task.html">Request a service</a></div>
         <div class="language-switch" aria-label="Choose language"><a class="is-current" href="missions.html" lang="en" aria-current="page">EN</a><span aria-hidden="true"></span><a href="missions-fr.html" lang="fr">FR</a></div>
         <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -42,6 +37,17 @@
       </div>
       <div class="menu-foot"><a class="button button-outline" href="contact.html?type=worker#contact-form">Become a provider</a><a class="button button-dark" href="post-task.html">Request a service</a></div>
     </aside>
+    <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-dialog-title">
+      <div class="search-dialog-head"><h2 id="search-dialog-title">Cleaning</h2><button class="search-dialog-close" type="button" aria-label="Close">×</button></div>
+      <label class="visually-hidden" for="service-query">Service</label>
+      <input class="search-dialog-input" id="service-query" type="search" placeholder="What service do you need?" autocomplete="off">
+      <nav class="search-dialog-crumbs" aria-label="Category"><button type="button" data-crumb-root>Cleaning</button><span class="search-dialog-crumb" data-crumb-group hidden></span></nav>
+      <ul class="search-dialog-list" data-service-list></ul>
+      <div class="search-dialog-where">
+        <label for="service-place">Where?</label>
+        <div class="search-dialog-where-row"><input id="service-place" type="search" list="search-dialog-places" placeholder="City or postcode" autocomplete="off"><datalist id="search-dialog-places"></datalist><button class="button button-dark" type="button" data-search-go>Search</button></div>
+      </div>
+    </dialog>
     <main id="main">
 
       <section class="loc-hero section-shell">
@@ -68,7 +74,6 @@
         <div class="loc-results-head">
           <p class="loc-summary" data-summary></p>
           <div data-keyword></div>
-          <p class="loc-note">Preview with fictional tasks.</p>
         </div>
         <div class="loc-layout">
           <div class="loc-map" data-map role="region" aria-label="Map of tasks"></div>
@@ -94,9 +99,9 @@
       <div class="footer-bottom section-shell"><span>© Q DEAL. Local task marketplace for businesses and self-employed workers.</span><div><a href="about-us.html">About us</a><a href="contact.html">Contact</a></div><a class="language-footer" href="missions-fr.html" lang="fr">EN&nbsp; | &nbsp;FR</a></div>
     </footer>
     <script src="assets/vendor/leaflet-1.9.4/leaflet.js?v=5a640ff8"></script>
-    <script src="assets/demo/missions.js?v=20b952d1"></script>
-    <script src="assets/demo/places.js?v=b892faa2"></script>
-    <script src="main.js?v=fc4a919f"></script>
-    <script src="localisation.js?v=5ab7792b"></script>
+    <script src="assets/demo/missions.js?v=313674f1"></script>
+    <script src="assets/demo/catalog.js?v=f578a18c"></script>
+    <script src="main.js?v=0d6ca82a"></script>
+    <script src="localisation.js?v=1978d0ba"></script>
   </body>
 </html>

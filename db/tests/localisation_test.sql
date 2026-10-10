@@ -82,7 +82,7 @@ BEGIN
   ASSERT NOT EXISTS (SELECT 1 FROM api.missions_near_provider(4) WHERE mission_id = 4), 'a draft mission is visible';
   ASSERT NOT EXISTS (SELECT 1 FROM api.missions_near_provider(1) WHERE mission_id = 6), 'a closed mission is listed';
   ASSERT NOT EXISTS (SELECT 1 FROM api.missions_near_provider(12)), 'an inactive provider sees missions';
-  PERFORM pg_temp.expect_error('SELECT * FROM api.accept_mission(2, 1)', 'QD003');   -- Samir cannot hand over keys
+  PERFORM pg_temp.expect_error('SELECT * FROM api.accept_mission(2, 1)', 'QD003');   -- Samir does not do holiday-rental cleaning
   PERFORM pg_temp.expect_error('SELECT * FROM api.accept_mission(10, 1)', 'QD004');  -- Théo lives 27 km away
   PERFORM pg_temp.expect_error('SELECT * FROM api.accept_mission(4, 4)', 'QD002');   -- draft
   PERFORM pg_temp.expect_error('SELECT * FROM api.accept_mission(12, 1)', 'QD001');  -- inactive
@@ -100,7 +100,7 @@ BEGIN
     ASSERT r.address_line IS NULL AND r.postal_code IS NULL AND r.city IS NULL AND r.business_name IS NULL, 'an example carries an address or a business';
     ASSERT r.precision_m = 1000 AND r.distance_km BETWEEN 1 AND 30 AND r.distance_km = round(r.distance_km), 'example placement out of range';
   END LOOP;
-  SELECT array_agg(qualified ORDER BY distance_km) INTO first_two FROM api.missions_near_provider(10);  -- Théo: keys + welcome
+  SELECT array_agg(qualified ORDER BY distance_km) INTO first_two FROM api.missions_near_provider(10);  -- Théo: home and holiday-rental cleaning
   ASSERT (SELECT count(*) FROM unnest(first_two) q WHERE q) >= 2, 'examples matching the provider''s skills should come first';
   ASSERT (SELECT array_agg(lon || ',' || lat ORDER BY example_id) FROM api.missions_near_provider(11))
        = (SELECT array_agg(lon || ',' || lat ORDER BY example_id) FROM api.missions_near_provider(11)), 'examples move between two reads';
@@ -126,8 +126,8 @@ DO $$
 DECLARE before integer; after integer; new_id bigint;
 BEGIN
   SELECT count(*) INTO before FROM api.missions_near_provider(5) WHERE is_example;
-  new_id := api.create_mission(1, 'Remise des clés', '2 rue de l’Université', '67000', 'Strasbourg',
-                               7.7700, 48.5840, now() + interval '2 days', ARRAY['remise_cles']);
+  new_id := api.create_mission(1, 'Ménage à domicile', 'Place de l’Université', '67000', 'Strasbourg',
+                               7.7700, 48.5840, now() + interval '2 days', ARRAY['menage_domicile']);
   PERFORM api.publish_mission(1, new_id);
   SELECT count(*) INTO after FROM api.missions_near_provider(5) WHERE is_example;
   ASSERT after = before - 1, format('a new real mission should replace one example (%s → %s)', before, after);
@@ -151,7 +151,7 @@ DECLARE r record;
 BEGIN
   SELECT * INTO r FROM api.qualified_providers(1, 1);
   ASSERT r.qualified_count = 4 AND r.display_min = 3, format('mission 1: expected 4 qualified providers, got %s', r.qualified_count);
-  SELECT * INTO r FROM api.qualified_providers(3, 4);  -- 2 real providers stock shelves nearby
+  SELECT * INTO r FROM api.qualified_providers(3, 4);  -- only Léa cleans windows nearby
   ASSERT r.qualified_count IS NULL AND r.display_min = 3, 'below the threshold the exact count must not be returned';
   SELECT * INTO r FROM api.publish_mission(3, 4);
   ASSERT r.qualified_count IS NULL, 'publish_mission should return the same figure';
@@ -168,10 +168,10 @@ BEGIN
   PERFORM pg_temp.expect_error('SELECT * FROM api.qualified_providers(1, 1, 0)', 'QD005');
   PERFORM pg_temp.expect_error('SELECT * FROM api.missions_near_provider(1, NULL, ''fr'', 0)', 'QD005');
   ASSERT (SELECT count(*) FROM api.missions_near_provider(5, NULL, 'fr', 2)) = 2, 'p_limit not applied';
-  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(1, 'Test', 'x', '67000', 'Strasbourg', 7.75, 48.58, now() - interval '1 day', ARRAY['menage'])$q$, 'QD005');
+  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(1, 'Test', 'x', '67000', 'Strasbourg', 7.75, 48.58, now() - interval '1 day', ARRAY['menage_domicile'])$q$, 'QD005');
   PERFORM pg_temp.expect_error($q$SELECT api.create_mission(1, 'Test', 'x', '67000', 'Strasbourg', 7.75, 48.58, now() + interval '1 day', ARRAY['inconnue'])$q$, 'QD005');
-  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(1, 'Test', 'x', '67000', 'Strasbourg', 7.75, 95, now() + interval '1 day', ARRAY['menage'])$q$, 'QD005');
-  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(77, 'Test', 'x', '67000', 'Strasbourg', 7.75, 48.58, now() + interval '1 day', ARRAY['menage'])$q$, 'QD006');
+  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(1, 'Test', 'x', '67000', 'Strasbourg', 7.75, 95, now() + interval '1 day', ARRAY['menage_domicile'])$q$, 'QD005');
+  PERFORM pg_temp.expect_error($q$SELECT api.create_mission(77, 'Test', 'x', '67000', 'Strasbourg', 7.75, 48.58, now() + interval '1 day', ARRAY['menage_domicile'])$q$, 'QD006');
   RAISE NOTICE 'ok 12. Une entreprise ne voit que ses missions ; saisies invalides refusées avec un code clair';
 END
 $$;
@@ -186,7 +186,7 @@ BEGIN
   END LOOP;
   ASSERT n = 3, format('expected 3 applicants (Léa, Inès, Camille), got %s', n);
   SELECT * INTO r FROM api.mission_applicants(1, 1) WHERE first_name = 'Léa';
-  ASSERT r.rating = 5.0 AND r.review_count = 1 AND 'Ménage' = ANY (r.skills), 'Léa''s profile is incomplete';
+  ASSERT r.rating = 5.0 AND r.review_count = 1 AND 'Repassage' = ANY (r.skills), 'Léa''s profile is incomplete';
   SELECT * INTO r FROM api.mission_applicants(1, 1) WHERE first_name = 'Camille';
   ASSERT r.review_count = 1, 'review count missing';
   RAISE NOTICE 'ok 13. Profils des candidats : prénom, compétences, note et distance arrondie, rien d’autre';

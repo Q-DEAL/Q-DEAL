@@ -42,13 +42,13 @@ CREATE TEMP TABLE site_out (k text PRIMARY KEY, v jsonb);
 CREATE TEMP TABLE site_config AS SELECT * FROM core.config;  -- settings as deployed, restored below
 
 -- Business side (computed first: the visitor providers below must not be counted) -----------
+-- A mission asks for one service; for each form address and each service: counter and applicants.
 DO $$
 DECLARE
   a           record;
   p           record;
+  svc         record;
   mid         bigint;
-  skill_order text[];
-  codes       text[];
   counts      jsonb;
   candidates  jsonb;
   from_api    jsonb;
@@ -56,11 +56,9 @@ DECLARE
   cnt         integer;
   addresses   jsonb := '[]';
 BEGIN
-  SELECT array_agg(code ORDER BY code) INTO skill_order FROM core.skills;
-
   FOR a IN SELECT * FROM site_addresses ORDER BY ord LOOP
     mid := api.create_mission(1, 'Mission publiée depuis le site', a.address_line, a.postal_code, a.city, a.lon, a.lat,
-                              now() + interval '2 days', ARRAY[skill_order[1]]);
+                              now() + interval '2 days', ARRAY['menage_domicile']);
     UPDATE core.missions SET status = 'published' WHERE id = mid;
 
     -- Providers allowed to accept a mission here, skills aside (same radius rule as api.accept_mission).
@@ -76,15 +74,14 @@ BEGIN
     LEFT JOIN LATERAL (SELECT round(avg(r.rating), 1) AS rating, count(*)::integer AS n FROM core.reviews r WHERE r.provider_id = p2.id) rv ON true
     WHERE m.id = mid;
 
-    counts := '[null]';  -- index = bit mask of the chosen skills (bit i = skills[i]); 0 is not allowed
-    FOR mask IN 1..(power(2, cardinality(skill_order))::integer - 1) LOOP
-      codes := ARRAY(SELECT skill_order[i] FROM generate_subscripts(skill_order, 1) AS i WHERE (mask >> (i - 1)) & 1 = 1);
+    counts := '{}';
+    FOR svc IN SELECT code FROM core.skills ORDER BY code LOOP
       DELETE FROM core.mission_skills WHERE mission_id = mid;
-      INSERT INTO core.mission_skills (mission_id, skill_code) SELECT mid, c FROM unnest(codes) AS c;
+      INSERT INTO core.mission_skills (mission_id, skill_code) VALUES (mid, svc.code);
       DELETE FROM core.mission_responses WHERE mission_id = mid;
 
       SELECT q.qualified_count INTO cnt FROM api.qualified_providers(1, mid) q;
-      counts := counts || coalesce(to_jsonb(cnt), 'null'::jsonb);
+      counts := counts || jsonb_build_object(svc.code, coalesce(to_jsonb(cnt), 'null'::jsonb));
 
       -- As on the platform: every provider tries to accept; the api keeps those who may.
       FOR p IN SELECT id FROM core.providers LOOP
@@ -98,9 +95,9 @@ BEGIN
                                                    'reviewCount', x.review_count, 'distanceKm', x.distance_km) ORDER BY x.provider_id), '[]')
       INTO from_api FROM api.mission_applicants(1, mid) x;
       SELECT coalesce(jsonb_agg(c - 'skills' ORDER BY (c->>'id')::bigint), '[]')
-      INTO from_rule FROM jsonb_array_elements(candidates) AS c WHERE (c->'skills') @> to_jsonb(codes);
+      INTO from_rule FROM jsonb_array_elements(candidates) AS c WHERE c->'skills' ? svc.code;
       IF from_api <> from_rule THEN
-        RAISE EXCEPTION 'localisation.js would show different applicants at % for %: % vs %', a.key, codes, from_rule, from_api;
+        RAISE EXCEPTION 'localisation.js would show different applicants at % for %: % vs %', a.key, svc.code, from_rule, from_api;
       END IF;
     END LOOP;
 
@@ -112,8 +109,11 @@ BEGIN
   END LOOP;
 
   INSERT INTO site_out VALUES ('business', jsonb_build_object('radiusKm', 10, 'addresses', addresses));
+  INSERT INTO site_out VALUES ('groups', (
+    SELECT jsonb_agg(jsonb_build_object('code', code, 'fr', label_fr, 'en', label_en) ORDER BY ord) FROM core.service_groups));
   INSERT INTO site_out VALUES ('skills', (
-    SELECT jsonb_agg(jsonb_build_object('code', code, 'fr', label_fr, 'en', label_en) ORDER BY code) FROM core.skills));
+    SELECT jsonb_agg(jsonb_build_object('code', s.code, 'fr', s.label_fr, 'en', s.label_en, 'group', s.group_code) ORDER BY g.ord, s.ord)
+    FROM core.skills s JOIN core.service_groups g ON g.code = s.group_code));
 END
 $$;
 
@@ -218,14 +218,17 @@ $$;
 
 SELECT jsonb_build_object(
   'config', (SELECT jsonb_build_object('examplesTarget', c.examples_target, 'countDisplayMin', c.count_display_min, 'blurRadiusM', core.blur_radius_m()) FROM site_config c),
+  'groups', (SELECT v FROM site_out WHERE k = 'groups'),
   'skills', (SELECT v FROM site_out WHERE k = 'skills'),
   'places', (SELECT v FROM site_out WHERE k = 'places'),
   'business', (SELECT v FROM site_out WHERE k = 'business')
 )::text;
 
--- Second line: the small place index used by the header search on every page.
-SELECT jsonb_agg(jsonb_build_object(
-         'key', p->'key', 'labelFr', p->'labelFr', 'labelEn', p->'labelEn', 'terms', p->'terms',
-         'missionCount', jsonb_array_length(p->'missions')) ORDER BY n)::text
-FROM site_out, jsonb_array_elements(v) WITH ORDINALITY AS t(p, n)
-WHERE k = 'places';
+-- Second line: the catalogue used by the search dialog on every page (places, groups, services).
+SELECT jsonb_build_object(
+  'places', (SELECT jsonb_agg(jsonb_build_object('key', p->'key', 'labelFr', p->'labelFr', 'labelEn', p->'labelEn', 'terms', p->'terms',
+                                                 'missionCount', jsonb_array_length(p->'missions')) ORDER BY n)
+             FROM site_out, jsonb_array_elements(v) WITH ORDINALITY AS t(p, n) WHERE k = 'places'),
+  'groups', (SELECT v FROM site_out WHERE k = 'groups'),
+  'services', (SELECT v FROM site_out WHERE k = 'skills')
+)::text;

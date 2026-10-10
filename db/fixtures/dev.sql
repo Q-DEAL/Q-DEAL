@@ -3,10 +3,10 @@
 DO $$ BEGIN PERFORM setseed(0.42); END $$;  -- reproducible blurred points
 
 INSERT INTO core.businesses (name, sector) VALUES
-  ('Conciergerie Kléber',   'conciergerie'),  -- 1
-  ('Rhin Construction',     'btp'),           -- 2
-  ('Marché des Halles',     'commerce'),      -- 3
-  ('Strasbourg Événements', 'evenementiel');  -- 4
+  ('Conciergerie Kléber',     'conciergerie'),  -- 1
+  ('Rhin Habitat Syndic',     'syndic'),        -- 2
+  ('Bureaux des Halles',      'entreprise'),    -- 3
+  ('Lavage Auto Strasbourg',  'automobile');    -- 4
 
 INSERT INTO core.providers (first_name, last_name, location, travel_radius_km, is_active)
 SELECT first_name, last_name, ST_SetSRID(ST_MakePoint(lon, lat), 4326)::geography, radius, active
@@ -26,44 +26,44 @@ FROM (VALUES
 ) AS v(first_name, last_name, lon, lat, radius, active);
 
 INSERT INTO core.provider_skills (provider_id, skill_code) VALUES
-  (1, 'remise_cles'), (1, 'accueil'), (1, 'menage'),
-  (2, 'manutention'), (2, 'rangement_chantier'),
-  (3, 'accueil'), (3, 'montage_evenement'), (3, 'menage'), (3, 'remise_cles'),
-  (4, 'manutention'), (4, 'mise_en_rayon'),
-  (5, 'remise_cles'), (5, 'accueil'),
-  (6, 'manutention'), (6, 'rangement_chantier'), (6, 'montage_evenement'),
-  (7, 'menage'), (7, 'mise_en_rayon'),
-  (8, 'manutention'), (8, 'montage_evenement'),
-  (9, 'remise_cles'), (9, 'accueil'), (9, 'menage'),
-  (10, 'remise_cles'), (10, 'accueil'),
-  (11, 'manutention'),
-  (12, 'remise_cles'), (12, 'accueil');
+  (1, 'menage_domicile'), (1, 'menage_location_saisonniere'), (1, 'repassage'), (1, 'nettoyage_vitres'),
+  (2, 'nettoyage_fin_chantier'), (2, 'lessivage_mur'), (2, 'nettoyage_logement_insalubre'), (2, 'nettoyage_moquette'),
+  (3, 'menage_domicile'), (3, 'menage_location_saisonniere'), (3, 'menage_apres_evenement'), (3, 'nettoyage_canape'), (3, 'nettoyage_tapis'),
+  (4, 'lavage_automobile'), (4, 'nettoyage_interieur_voiture'), (4, 'nettoyage_exterieur_voiture'), (4, 'lustrage_voiture'),
+  (5, 'menage_domicile'), (5, 'menage_location_saisonniere'), (5, 'nettoyage_four'), (5, 'nettoyage_frigo'),
+  (6, 'nettoyage_fin_chantier'), (6, 'lessivage_mur'), (6, 'nettoyage_hotte'), (6, 'nettoyage_four'),
+  (7, 'nettoyage_canape'), (7, 'nettoyage_matelas'), (7, 'nettoyage_rideaux'), (7, 'nettoyage_moquette'), (7, 'menage_printemps'),
+  (8, 'lavage_automobile'), (8, 'nettoyage_interieur_voiture'), (8, 'nettoyage_fin_chantier'),
+  (9, 'menage_domicile'), (9, 'menage_location_saisonniere'), (9, 'repassage'), (9, 'aide_rangement'),
+  (10, 'menage_domicile'), (10, 'menage_location_saisonniere'),
+  (11, 'nettoyage_fin_chantier'),
+  (12, 'menage_domicile'), (12, 'menage_location_saisonniere');
 
 INSERT INTO core.missions (business_id, title, description, address_line, postal_code, city, location, starts_at, status)
 SELECT business_id, title, description, address_line, postal_code, city,
        ST_SetSRID(ST_MakePoint(lon, lat), 4326)::geography, now() + starts_in, status
 FROM (VALUES
-  (1, 'Check-in et remise des clés', 'Accueillir deux voyageurs et leur remettre les clés d’un appartement.',
+  (1, 'Ménage de location saisonnière avant arrivée', 'Ménage complet d’un T2 et changement du linge avant l’arrivée des voyageurs.',
       'Rue des Bouchers, appartement 3B', '67000', 'Strasbourg', 7.7562, 48.5793, interval '2 days', 'published'),        -- 1
-  (1, 'Ménage entre deux locations', 'Ménage complet d’un T2 avant l’arrivée des prochains voyageurs.',
-      'Quai des Pêcheurs, studio 2', '67000', 'Strasbourg', 7.7598, 48.5812, interval '3 days', 'published'),                 -- 2
-  (2, 'Rangement de matériel sur chantier', 'Trier et ranger l’outillage dans le conteneur de chantier.',
-      'Rue du Port du Rhin, chantier B', '67100', 'Strasbourg', 7.7905, 48.5703, interval '1 day', 'published'),      -- 3
-  (3, 'Mise en rayon avant ouverture', 'Réassort des rayons frais entre 6 h et 8 h.',
-      'Place des Halles', '67000', 'Strasbourg', 7.7420, 48.5860, interval '4 days', 'draft'),                        -- 4
-  (4, 'Montage d’un salon professionnel', 'Montage de stands et manutention du mobilier.',
-      'Parc des expositions, avenue Herrenschmidt', '67000', 'Strasbourg', 7.7680, 48.5950, interval '6 days', 'published'), -- 5
-  (1, 'Accueil de voyageurs (terminée)', 'Mission passée, utilisée pour les avis.',
-      'Rue de la Douane, studio 4', '67000', 'Strasbourg', 7.7480, 48.5810, interval '-10 days', 'closed')                   -- 6
+  (1, 'Repassage entre deux locations', 'Repassage du linge de lit et des serviettes d’un studio.',
+      'Quai des Pêcheurs, studio 2', '67000', 'Strasbourg', 7.7598, 48.5812, interval '3 days', 'published'),             -- 2
+  (2, 'Nettoyage de fin de chantier des parties communes', 'Hall et cage d’escalier après des travaux de peinture.',
+      'Rue du Port du Rhin, résidence B', '67100', 'Strasbourg', 7.7905, 48.5703, interval '1 day', 'published'),         -- 3
+  (3, 'Nettoyage de vitres des bureaux', 'Vitres intérieures et extérieures d’un plateau de bureaux au 2e étage.',
+      'Place des Halles', '67000', 'Strasbourg', 7.7420, 48.5860, interval '4 days', 'draft'),                            -- 4
+  (4, 'Nettoyage intérieur de véhicules de location', 'Aspirateur, surfaces et vitres de six véhicules.',
+      'Avenue Herrenschmidt, parking', '67000', 'Strasbourg', 7.7680, 48.5950, interval '6 days', 'published'),           -- 5
+  (1, 'Ménage de location saisonnière (terminée)', 'Mission passée, utilisée pour les avis.',
+      'Rue de la Douane, studio 4', '67000', 'Strasbourg', 7.7480, 48.5810, interval '-10 days', 'closed')               -- 6
 ) AS v(business_id, title, description, address_line, postal_code, city, lon, lat, starts_in, status);
 
 INSERT INTO core.mission_skills (mission_id, skill_code) VALUES
-  (1, 'remise_cles'), (1, 'accueil'),
-  (2, 'menage'),
-  (3, 'rangement_chantier'), (3, 'manutention'),
-  (4, 'mise_en_rayon'),
-  (5, 'montage_evenement'), (5, 'manutention'),
-  (6, 'accueil');
+  (1, 'menage_location_saisonniere'),
+  (2, 'repassage'),
+  (3, 'nettoyage_fin_chantier'),
+  (4, 'nettoyage_vitres'),
+  (5, 'nettoyage_interieur_voiture'),
+  (6, 'menage_location_saisonniere');
 
 INSERT INTO core.mission_responses (mission_id, provider_id, status) VALUES
   (1, 1, 'accepted'),   -- Léa sees the exact address of mission 1
