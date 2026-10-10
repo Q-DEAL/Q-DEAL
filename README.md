@@ -25,8 +25,14 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/) pour l’anglais
 
 - Modifiez le texte et les liens dans les six fichiers HTML.
 - `styles.css` contient les styles partagés et les règles responsive.
-- `main.js` gère le menu mobile et les accordéons du pied de page.
-- `assets/images/` contient les images et le favicon Q DEAL.
+- `main.js` gère le menu mobile, les menus déroulants, la recherche de l’en-tête, les accordéons du pied de page et le formulaire de contact.
+- `assets/images/` contient le logo (`qdeal-logo.svg`), le favicon et les images.
 - Les polices Inter et Manrope sont chargées depuis Google Fonts, donc leur chargement demande une connexion internet.
 
-Le site présente le concept Q DEAL en développement. Les inscriptions, annonces, estimations, messagerie et chatbot sont des fonctionnalités envisagées, pas encore connectées à un service.
+## Formulaire de contact
+
+Le formulaire de `contact.html` et `contact-fr.html` ouvre la messagerie du visiteur avec le message pré-rempli. L’adresse de réception est l’attribut `data-contact-email` du formulaire : remplacez le placeholder `contact@example.com` dans les deux pages.
+
+Les boutons du site peuvent présélectionner le profil avec `?type=worker`, `?type=business` ou `?type=partner` (par exemple `contact-fr.html?type=business#contact-form`).
+
+Les inscriptions, annonces, estimations, messagerie et chatbot ne sont pas encore connectés à un service.
