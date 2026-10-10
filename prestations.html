@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/vendor/leaflet-1.9.4/leaflet.css?v=340720ef">
-    <link rel="stylesheet" href="styles.css?v=675292fc">
+    <link rel="stylesheet" href="styles.css?v=c562527c">
   </head>
   <body class="subpage missions-page">
     <a class="skip-link" href="#main">Aller au contenu principal</a>
@@ -49,13 +49,30 @@
     </dialog>
     <main id="main">
 
-      <section class="loc-hero section-shell">
-        <p class="eyebrow">Trouver une prestation</p>
-        <h1>Prestations près de<br><span data-place-title>Strasbourg</span></h1>
-        <form class="loc-place-form" data-place-form role="search">
-          <label class="visually-hidden" for="loc-place">Ville, quartier ou code postal</label>
-          <input id="loc-place" name="lieu" list="loc-places" placeholder="Ville, quartier ou code postal" autocomplete="off">
-          <datalist id="loc-places"></datalist>
+      <section class="pj-top section-shell">
+        <div class="pj-intro">
+          <p class="eyebrow">Espace prestataires</p>
+          <h1>Demandes de prestation près de <span data-place-title>Strasbourg</span></h1>
+          <p>Les clients (syndics de copropriété, conciergeries, entreprises) publient ici leurs besoins de ménage. Vous êtes prestataire indépendant : choisissez les demandes qui vous conviennent.</p>
+        </div>
+        <aside class="pj-switch" aria-label="Vous cherchez un prestataire ?">
+          <p><strong>Vous cherchez un prestataire ?</strong> Cette page s’adresse aux prestataires. Pour faire réaliser une prestation, publiez votre demande.</p>
+          <a class="button button-outline" href="post-task.html">Publier une prestation</a>
+        </aside>
+      </section>
+
+      <section class="pj-results section-shell" data-missions-app>
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <form class="pj-search" data-place-form role="search">
+          <div class="pj-field">
+            <label for="loc-service">Quel service ?</label>
+            <select id="loc-service" data-service-select><option value="">Tous les services de ménage</option></select>
+          </div>
+          <div class="pj-field">
+            <label for="loc-place">Où ?</label>
+            <input id="loc-place" name="lieu" list="loc-places" placeholder="Ville, quartier ou code postal" autocomplete="off">
+            <datalist id="loc-places"></datalist>
+          </div>
           <button class="button button-dark" type="submit">Rechercher</button>
         </form>
         <ul class="loc-place-chips" aria-label="Lieux fréquents">
@@ -66,24 +83,26 @@
           <li><button type="button" data-place-chip="schiltigheim">Schiltigheim</button></li>
           <li><button type="button" data-place-chip="illkirch">Illkirch</button></li>
         </ul>
-      </section>
 
-      <section class="loc-results section-shell" data-missions-app>
-        <p class="visually-hidden" data-live aria-live="polite"></p>
-        <div class="loc-results-head">
+        <div class="pj-head">
           <p class="loc-summary" data-summary></p>
-          <div data-keyword></div>
+          <div class="pj-tools">
+            <div data-keyword></div>
+            <label class="pj-sort">Trier par <select data-sort><option value="distance">Distance</option><option value="date">Date</option></select></label>
+          </div>
         </div>
-        <div class="loc-layout">
-          <div class="loc-map" data-map role="region" aria-label="Carte des prestations"></div>
-          <ol class="loc-missions" data-list></ol>
+        <div class="pj-layout">
+          <ol class="pj-list" data-list></ol>
+          <aside class="pj-map-col">
+            <div class="loc-map pj-map" data-map role="region" aria-label="Carte des demandes"></div>
+            <ul class="pj-legend">
+              <li><span class="pj-pin pj-pin-legend"><span>1</span></span>Numéro de la demande dans la liste</li>
+              <li><span class="pj-pin pj-pin-legend is-accepted"><span>1</span></span>Demande acceptée : adresse exacte</li>
+              <li><span class="pj-pin pj-pin-legend is-example"><span>1</span></span>Exemple de demande</li>
+              <li><span class="pj-zone-legend"></span>Au survol d’une demande : la zone de 1 km où elle se trouve. L’adresse exacte n’est connue qu’une fois la demande acceptée.</li>
+            </ul>
+          </aside>
         </div>
-        <ul class="loc-legend">
-          <li><span class="legend-place"></span>Lieu recherché et rayon de 10 km</li>
-          <li><span class="legend-approx"></span>Prestation : position à 1 km près</li>
-          <li><span class="legend-exact"></span>Prestation acceptée : adresse exacte</li>
-          <li><span class="legend-example"></span>Prestation d’exemple</li>
-        </ul>
       </section>
 
     </main>
@@ -101,6 +120,6 @@
     <script src="assets/demo/prestations.js?v=927be1d6"></script>
     <script src="assets/demo/catalog.js?v=ed94dbb3"></script>
     <script src="main.js?v=4ed53f9d"></script>
-    <script src="localisation.js?v=6f8c840e"></script>
+    <script src="localisation.js?v=751b5bdd"></script>
   </body>
 </html>
