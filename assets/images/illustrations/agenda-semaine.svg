@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="1280" height="760" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif"><title id="t">Semaine d’un professionnel avec l’agenda intelligent</title><desc id="d">Une semaine de cinq jours où chaque demi-journée est consacrée à un seul quartier : Neudorf le lundi et le mardi matin, Krutenau le mercredi, Robertsau le jeudi, Cronenbourg le vendredi. Les nettoyages récurrents sont signalés par un trait.</desc>
+<rect width="640" height="380" rx="0" fill="#fff"/>
+<g font-size="12" font-weight="800" fill="#101014" text-anchor="middle"><text x="140" y="36">Lun.</text><text x="250" y="36">Mar.</text><text x="360" y="36">Mer.</text><text x="470" y="36">Jeu.</text><text x="580" y="36">Ven.</text></g>
+<g font-size="11" fill="#5d5d68" text-anchor="end"><text x="72" y="74">7 h</text><text x="72" y="134">9 h</text><text x="72" y="194">11 h</text><text x="72" y="254">14 h</text><text x="72" y="314">16 h</text></g>
+<g stroke="#ececea" stroke-width="1.5"><path d="M86 70h544M86 130h544M86 190h544M86 250h544M86 310h544"/></g>
+<g font-size="10.5" font-weight="700">
+<g fill="#f15a3b"><rect x="92" y="62" width="96" height="44" rx="10"/><rect x="92" y="112" width="96" height="34" rx="10"/><rect x="92" y="152" width="96" height="30" rx="10"/><rect x="202" y="62" width="96" height="40" rx="10"/><rect x="202" y="108" width="96" height="40" rx="10"/></g>
+<g fill="#fff"><text x="102" y="80">Bureaux 120 m²</text><text x="102" y="96" font-weight="400">Neudorf ↻</text><text x="102" y="133">Agence</text><text x="102" y="171">Cabinet</text><text x="212" y="80">Boutique</text><text x="212" y="94" font-weight="400">Neudorf</text><text x="212" y="126">Copropriété ↻</text><text x="212" y="140" font-weight="400">Neudorf</text></g>
+<g fill="#101014"><rect x="312" y="62" width="96" height="56" rx="10"/><rect x="312" y="124" width="96" height="40" rx="10"/><rect x="532" y="242" width="96" height="44" rx="10"/><rect x="532" y="292" width="96" height="40" rx="10"/></g>
+<g fill="#fff"><text x="322" y="82">Locaux après</text><text x="322" y="96">travaux</text><text x="322" y="110" font-weight="400">Krutenau</text><text x="322" y="142">Bureaux ↻</text><text x="322" y="156" font-weight="400">Krutenau</text><text x="542" y="262">Commerce</text><text x="542" y="276" font-weight="400">Cronenbourg</text><text x="542" y="310">Bureaux ↻</text><text x="542" y="324" font-weight="400">Cronenbourg</text></g>
+<g fill="#ffcb59"><rect x="422" y="62" width="96" height="40" rx="10"/><rect x="422" y="108" width="96" height="40" rx="10"/><rect x="422" y="154" width="96" height="30" rx="10"/></g>
+<g fill="#101014"><text x="432" y="80">Cabinet ↻</text><text x="432" y="94" font-weight="400">Robertsau</text><text x="432" y="126">Bureaux</text><text x="432" y="140" font-weight="400">Robertsau</text><text x="432" y="173">Agence</text></g>
+<g fill="#ffd9cc"><rect x="202" y="250" width="96" height="60" rx="10" stroke="#f15a3b" stroke-width="2" stroke-dasharray="5 4"/></g>
+<text x="212" y="274" fill="#c43d1f">Créneau libre</text><text x="212" y="290" fill="#c43d1f" font-weight="400">comblé par une</text><text x="212" y="304" fill="#c43d1f" font-weight="400">demande voisine</text>
+</g>
+<text x="92" y="362" font-size="11" fill="#5d5d68">Une demi-journée, un quartier. ↻ = nettoyage récurrent calé sur vos jours de passage.</text>
+</svg>

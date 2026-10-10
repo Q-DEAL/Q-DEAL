@@ -4,13 +4,18 @@ Site statique modifiable directement dans ses fichiers HTML.
 
 ## Pages
 
-- `index.html` — accueil
+- `index.html` — accueil : nettoyage pour les entreprises, étudiants, pros et agenda intelligent
 - `about-us.html` — présentation
 - `contact.html` — page contact
-- `devenir-prestataire.html` — page vide pour l’inscription des prestataires (bouton « Devenir prestataire »)
+- `devenir-prestataire.html` — inscription des prestataires : étudiants maintenant, professionnels bientôt (bouton « Devenir prestataire »)
 - `demander-un-service.html` — page vide pour la demande d’un service (bouton « Demander un service »)
 - `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
-- `post-task.html` — publication d’une mission, compteur de prestataires et candidats
+- `post-task.html` — demande de nettoyage, compteur de prestataires et candidats
+- `suivi-administratif.html` — suivi administratif des étudiants prestataires par email (URSSAF, assurance RC Pro), avec le modèle d’email `assets/images/email-suivi-administratif.svg`
+- `formations.html`, `faq.html` — sous-pages du menu Prestations
+- `estimation.html`, `secteurs.html`, `comment-ca-marche.html`, `fonctionnalites.html` — sous-pages du menu Entreprises (guide vidéo IA, consignes, agenda intelligent, assistant)
+
+`main.js` ajoute sur toutes les pages le chatbot de démonstration en bas à droite : des questions et réponses scénarisées, sans vraie conversation.
 
 Le site est en français uniquement ; les anciennes adresses `*-fr.html` et `missions.html` redirigent vers ces pages.
 

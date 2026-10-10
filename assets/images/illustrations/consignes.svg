@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif"><title id="t">Les consignes du client, enregistrées une seule fois</title><desc id="d">Une fiche de consignes avec quatre photos des locaux et une liste de tâches est partagée automatiquement avec chaque nouveau prestataire.</desc>
+<rect width="600" height="400" fill="#ffd9cc"/>
+<circle cx="90" cy="70" r="110" fill="#ffbfab"/>
+<rect x="60" y="40" width="300" height="320" rx="24" fill="#fff"/>
+<text x="84" y="76" font-size="10" font-weight="800" letter-spacing="1.2" fill="#f15a3b">CONSIGNES · CABINET MARTIN</text>
+<text x="84" y="98" font-family="Manrope, Arial, sans-serif" font-size="17" font-weight="800" fill="#101014">Nettoyage du mardi</text>
+<g><rect x="84" y="114" width="58" height="50" rx="8" fill="#ffbfab"/><rect x="150" y="114" width="58" height="50" rx="8" fill="#101014"/><rect x="216" y="114" width="58" height="50" rx="8" fill="#ffcb59"/><rect x="282" y="114" width="54" height="50" rx="8" fill="#e6f2ff"/>
+<path d="M96 150l12-14 10 10 8-6 12 10z" fill="#fff" opacity=".8"/><circle cx="179" cy="139" r="11" fill="none" stroke="#f15a3b" stroke-width="3"/><rect x="232" y="128" width="26" height="24" rx="3" fill="#fff"/><path d="M292 154l14-24M304 156l14-24" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>
+<g font-size="12" fill="#101014">
+<path d="M88 190l5 5 10-11" fill="none" stroke="#f15a3b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><text x="114" y="195">Bureaux : surfaces et poignées</text>
+<path d="M88 220l5 5 10-11" fill="none" stroke="#f15a3b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><text x="114" y="225">Sanitaires : produits sous l’évier</text>
+<path d="M88 250l5 5 10-11" fill="none" stroke="#f15a3b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><text x="114" y="255">Ne pas toucher aux dossiers</text>
+<path d="M88 280l5 5 10-11" fill="none" stroke="#f15a3b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><text x="114" y="285">Badge à l’accueil, code 2</text></g>
+<text x="84" y="330" font-size="10.5" fill="#5d5d68">Rédigé une fois · mis à jour le 3 octobre</text>
+<path d="M370 200c40 0 60-30 90-30" fill="none" stroke="#101014" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>
+<path d="M370 200c40 0 60 30 90 30" fill="none" stroke="#101014" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>
+<g font-family="Manrope, Arial, sans-serif" font-weight="800" font-size="20" text-anchor="middle">
+<circle cx="490" cy="150" r="34" fill="#101014"/><text x="490" y="157" fill="#fff">L</text>
+<circle cx="490" cy="250" r="34" fill="#f15a3b"/><text x="490" y="257" fill="#fff">S</text></g>
+<g font-size="10.5" font-weight="700" fill="#101014" text-anchor="middle"><text x="490" y="202">Prestataire 1</text><text x="490" y="302">Prestataire 2</text></g>
+<path d="M520 60l6 15 15 6-15 6-6 15-6-15-15-6 15-6z" fill="#fff"/>
+</svg>

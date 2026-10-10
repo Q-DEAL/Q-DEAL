@@ -13,7 +13,11 @@ Toutes les photos viennent de [Pexels](https://www.pexels.com), sous la [licence
 | `pexels-17723979-stadium-seats` | Israel Torres | Accueil, module vidéo 03 |
 | `pexels-6140674-students-laptops` | William Fortunato | À propos, en-tête |
 | `pexels-7018682-warehouse-tablet` | cottonbro studio | À propos, « Un service pensé pour les besoins courts et urgents » |
-| `pexels-36729574-cleaning-apartment` | Vitaly Gariev | À propos, « Pourquoi Q DEAL ? » |
+| `pexels-36729574-cleaning-apartment` | Vitaly Gariev | Accueil, « Un nettoyage de qualité » ; À propos, « Pourquoi Q DEAL ? » |
 | `pexels-5965580-students-sharing-laptop` | Charlotte May | À propos, « Compétences, zone et disponibilités » |
 
 Chaque photo existe en deux largeurs (`-700.jpg` et `-1400.jpg`), servies selon la taille d’écran. Page d’origine : `https://www.pexels.com/photo/<identifiant>/`.
+
+## Illustrations
+
+Les illustrations de `illustrations/` (bureaux, locaux, produits, poste de travail, liste de contrôle, assistant, guide vidéo, consignes, agenda) et le modèle d’email `email-suivi-administratif.svg` ont été dessinés pour Q DEAL, aux couleurs du site.

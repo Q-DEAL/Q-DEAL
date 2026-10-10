@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t"><title id="t">Des produits d’entretien et un gobelet doseur</title>
+<rect width="600" height="400" fill="#fff3ee"/>
+<circle cx="140" cy="110" r="110" fill="#ffd9cc"/>
+<rect x="0" y="290" width="600" height="110" fill="#ffbfab"/>
+<rect x="110" y="120" width="90" height="180" rx="22" fill="#101014"/><rect x="138" y="92" width="34" height="32" rx="6" fill="#f15a3b"/><rect x="124" y="180" width="62" height="60" rx="8" fill="#fff"/><path d="M138 200h34M138 220h22" stroke="#101014" stroke-width="6" stroke-linecap="round"/>
+<rect x="230" y="160" width="76" height="140" rx="18" fill="#f15a3b"/><rect x="252" y="134" width="32" height="30" rx="6" fill="#101014"/><circle cx="268" cy="225" r="20" fill="#fff3ee"/><path d="M268 212v26M255 225h26" stroke="#f15a3b" stroke-width="6" stroke-linecap="round"/>
+<rect x="336" y="200" width="64" height="100" rx="14" fill="#ffcb59"/><rect x="354" y="178" width="28" height="26" rx="5" fill="#101014"/><path d="M350 240h36" stroke="#101014" stroke-width="6" stroke-linecap="round"/>
+<path d="M430 220h80l-10 80h-60z" fill="#fff" stroke="#101014" stroke-width="5" stroke-linejoin="round"/><path d="M436 262h68l-5 38h-58z" fill="#f15a3b"/><path d="M490 236h14M492 250h12" stroke="#101014" stroke-width="4" stroke-linecap="round"/>
+<path d="M470 60l7 18 18 7-18 7-7 18-7-18-18-7 18-7zM540 140l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#f15a3b"/>
+</svg>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1010" width="760" height="1010" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif">
+  <title id="t">Modèle d’email de suivi administratif Q DEAL</title>
+  <desc id="d">Exemple d’email envoyé à une étudiante prestataire : rappel de la déclaration trimestrielle de chiffre d’affaires à l’URSSAF avant le 31 octobre, récapitulatif des prestations réalisées via Q DEAL et rappel du renouvellement de l’attestation d’assurance responsabilité civile professionnelle.</desc>
+  <defs>
+    <path id="logo" fill-rule="evenodd" d="M214 164L214 281.5A6 6 0 0 0 220 287.5L270 287.5A7 7 0 0 1 277 294.5L277 310.5A12 12 0 0 1 265 322.5L202.5 322.5A40 40 0 0 1 162.5 282.5L162.5 250.78A107 101.5 0 1 1 214 164ZM162.5 164A55.5 55.5 0 1 0 51.5 164A55.5 55.5 0 1 0 162.5 164ZM384 7A7 7 0 0 1 391 0L428.5 0A7 7 0 0 1 435.5 7L435.5 164A107 101.5 0 1 1 384 77.22ZM384 164A55.5 55.5 0 1 0 273 164A55.5 55.5 0 1 0 384 164ZM652.54 200A107 101.5 0 1 1 657.99 181L499.67 181A55.5 55.5 0 0 0 594.74 200ZM605.33 147A55.5 55.5 0 0 0 499.67 147ZM884.5 164L884.5 251.5A7 7 0 0 1 877.5 258.5L840 258.5A7 7 0 0 1 833 251.5L833 250.78A107 101.5 0 1 1 884.5 164ZM833 164A55.5 55.5 0 1 0 722 164A55.5 55.5 0 1 0 833 164ZM902.5 7A7 7 0 0 1 909.5 0H947A7 7 0 0 1 954 7V251.5A7 7 0 0 1 947 258.5H909.5A7 7 0 0 1 902.5 251.5Z"/>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#101014" flood-opacity=".12"/></filter>
+  </defs>
+
+  <!-- Fenêtre de messagerie -->
+  <rect x="20" y="16" width="720" height="974" rx="22" fill="#fff" stroke="#dedee6" filter="url(#shadow)"/>
+  <path d="M20 38a22 22 0 0 1 22-22h676a22 22 0 0 1 22 22v28H20z" fill="#f4f4f2"/>
+  <circle cx="48" cy="42" r="6" fill="#f15a3b"/><circle cx="68" cy="42" r="6" fill="#ffcb59"/><circle cx="88" cy="42" r="6" fill="#dedee6"/>
+  <text x="380" y="47" text-anchor="middle" font-size="13" fill="#5d5d68">Boîte de réception</text>
+
+  <!-- En-tête du message -->
+  <g font-size="14" fill="#5d5d68">
+    <text x="56" y="104">De</text><text x="120" y="104" fill="#101014" font-weight="700">Q DEAL · Suivi administratif</text>
+    <text x="56" y="132">À</text><text x="120" y="132" fill="#101014">Léa Martin</text>
+    <text x="684" y="104" text-anchor="end">Lun. 13 oct., 09:00</text>
+  </g>
+  <text x="56" y="172" font-family="Manrope, Arial, sans-serif" font-size="20" font-weight="800" fill="#101014">Votre point administratif d’octobre</text>
+  <line x1="56" y1="196" x2="704" y2="196" stroke="#dedee6"/>
+
+  <!-- Bandeau orange -->
+  <rect x="56" y="220" width="648" height="132" rx="18" fill="#f15a3b"/>
+  <use href="#logo" transform="translate(84 246) scale(.085)" fill="#101014"/>
+  <text x="84" y="306" font-family="Manrope, Arial, sans-serif" font-size="25" font-weight="800" fill="#101014">Deux rappels avant la fin du mois.</text>
+  <text x="84" y="332" font-size="14" fill="#101014">Cinq minutes pour rester en règle et continuer vos prestations.</text>
+  <text x="664" y="270" font-size="42" fill="#fff" text-anchor="middle">✦</text>
+
+  <g font-size="15" fill="#101014">
+    <text x="56" y="394">Bonjour Léa,</text>
+    <text x="56" y="420" fill="#5d5d68">Voici les démarches à prévoir pour votre activité d’auto-entrepreneur.</text>
+  </g>
+
+  <!-- Carte URSSAF -->
+  <rect x="56" y="444" width="648" height="226" rx="16" fill="#fff3ee" stroke="#ffd9cc"/>
+  <rect x="80" y="468" width="44" height="44" rx="12" fill="#ffd9cc"/>
+  <text x="102" y="497" text-anchor="middle" font-size="20" font-weight="800" fill="#c43d1f">€</text>
+  <text x="140" y="486" font-size="11.5" font-weight="800" letter-spacing="1.3" fill="#c43d1f">URSSAF · AVANT LE 31 OCTOBRE</text>
+  <text x="140" y="508" font-family="Manrope, Arial, sans-serif" font-size="18" font-weight="800" fill="#101014">Déclarez votre chiffre d’affaires du 3e trimestre</text>
+  <rect x="80" y="530" width="600" height="68" rx="12" fill="#fff"/>
+  <g font-size="13" fill="#5d5d68">
+    <text x="100" y="557">Prestations réalisées via Q DEAL</text><text x="100" y="582">Juillet à septembre</text>
+  </g>
+  <text x="660" y="562" text-anchor="end" font-family="Manrope, Arial, sans-serif" font-size="22" font-weight="800" fill="#101014">640 €</text>
+  <text x="660" y="584" text-anchor="end" font-size="12.5" fill="#5d5d68">3 prestations encaissées</text>
+  <text x="80" y="624" font-size="13" fill="#5d5d68">Ajoutez vos autres revenus d’activité. Même à 0 €, la déclaration reste obligatoire.</text>
+
+  <!-- Bouton URSSAF -->
+  <rect x="56" y="690" width="306" height="48" rx="24" fill="#101014"/>
+  <text x="209" y="720" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="14.5" font-weight="800" fill="#fff">Déclarer sur le site de l’URSSAF</text>
+
+  <!-- Carte RC Pro -->
+  <rect x="56" y="760" width="648" height="112" rx="16" fill="#fff" stroke="#dedee6"/>
+  <rect x="80" y="784" width="44" height="44" rx="12" fill="#ececea"/>
+  <text x="102" y="813" text-anchor="middle" font-size="20" font-weight="800" fill="#101014">✓</text>
+  <text x="140" y="802" font-size="11.5" font-weight="800" letter-spacing="1.3" fill="#c43d1f">ASSURANCE RC PRO · EXPIRE LE 15 NOVEMBRE</text>
+  <text x="140" y="824" font-family="Manrope, Arial, sans-serif" font-size="18" font-weight="800" fill="#101014">Renouvelez votre attestation d’assurance</text>
+  <text x="140" y="850" font-size="13" fill="#5d5d68">Déposez la nouvelle sur votre profil pour rester visible des clients.</text>
+  <rect x="56" y="890" width="268" height="48" rx="24" fill="#fff" stroke="#101014" stroke-width="2"/>
+  <text x="190" y="920" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="14.5" font-weight="800" fill="#101014">Mettre à jour mon attestation</text>
+
+  <!-- Pied -->
+  <text x="56" y="966" font-size="11.5" fill="#5d5d68">Q DEAL vous rappelle les échéances ; la déclaration et l’assurance restent à votre nom. Gérer mes rappels</text>
+</svg>

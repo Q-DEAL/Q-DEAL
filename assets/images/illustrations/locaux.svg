@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t"><title id="t">Une boutique et des bureaux en ville, vitrines nettoyées</title>
+<rect width="600" height="400" fill="#fff3ee"/>
+<circle cx="480" cy="80" r="44" fill="#ffcb59"/>
+<rect x="60" y="60" width="210" height="300" fill="#101014"/>
+<g fill="#f15a3b"><rect x="85" y="85" width="44" height="36" rx="4"/><rect x="143" y="85" width="44" height="36" rx="4"/><rect x="201" y="85" width="44" height="36" rx="4"/><rect x="85" y="140" width="44" height="36" rx="4"/><rect x="201" y="140" width="44" height="36" rx="4"/><rect x="143" y="195" width="44" height="36" rx="4"/><rect x="85" y="250" width="44" height="36" rx="4"/><rect x="201" y="250" width="44" height="36" rx="4"/></g>
+<g fill="#ffd9cc"><rect x="143" y="140" width="44" height="36" rx="4"/><rect x="85" y="195" width="44" height="36" rx="4"/><rect x="201" y="195" width="44" height="36" rx="4"/><rect x="143" y="250" width="44" height="36" rx="4"/></g>
+<rect x="140" y="305" width="50" height="55" fill="#ffd9cc"/>
+<rect x="290" y="150" width="250" height="210" fill="#fff" stroke="#101014" stroke-width="5"/>
+<path d="M280 150h270l-14-46H294z" fill="#f15a3b"/><path d="M294 104h242" stroke="#101014" stroke-width="5"/>
+<g fill="#101014"><path d="M280 150a22 22 0 0 0 44 0zM324 150a22 22 0 0 0 44 0zM368 150a22 22 0 0 0 44 0zM412 150a22 22 0 0 0 44 0zM456 150a22 22 0 0 0 44 0zM500 150a22 22 0 0 0 44 0z" opacity=".9"/></g>
+<rect x="310" y="200" width="140" height="110" fill="#e6f2ff" stroke="#101014" stroke-width="5"/>
+<path d="M330 286l50-60M362 292l60-70" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+<rect x="468" y="210" width="52" height="150" fill="#ffd9cc" stroke="#101014" stroke-width="5"/>
+<rect x="0" y="360" width="600" height="40" fill="#ffbfab"/>
+<path d="M420 220l6 16 16 6-16 6-6 16-6-16-16-6 16-6zM330 60l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#f15a3b"/>
+</svg>

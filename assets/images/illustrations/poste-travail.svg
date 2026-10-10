@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="1200" height="800" role="img" aria-labelledby="t"><title id="t">Un poste de travail nettoyé avec un spray et un chiffon</title>
+<rect width="600" height="400" fill="#ffd9cc"/>
+<circle cx="470" cy="90" r="120" fill="#ffbfab"/>
+<rect x="0" y="250" width="600" height="150" fill="#fff3ee"/>
+<rect x="110" y="70" width="220" height="140" rx="12" fill="#101014"/><rect x="122" y="82" width="196" height="116" rx="6" fill="#fff"/><rect x="205" y="210" width="30" height="34" fill="#101014"/><rect x="170" y="240" width="100" height="12" rx="6" fill="#101014"/>
+<path d="M140 105h90M140 125h140M140 145h110" stroke="#ffd9cc" stroke-width="10" stroke-linecap="round"/>
+<rect x="400" y="140" width="62" height="116" rx="16" fill="#f15a3b"/><path d="M412 140v-26h40v26z" fill="#101014"/><path d="M420 114v-22h44l18 10-4 8-26-4v8z" fill="#101014"/><rect x="412" y="180" width="38" height="34" rx="6" fill="#fff3ee"/><path d="M420 197h22" stroke="#f15a3b" stroke-width="5" stroke-linecap="round"/>
+<path d="M500 96l20-10M502 108h24M500 120l20 10" stroke="#101014" stroke-width="5" stroke-linecap="round"/>
+<path d="M300 300c40-24 90-20 120 0-10 26-90 34-120 0z" fill="#ffcb59"/><path d="M318 302c26-10 60-10 84 0" stroke="#101014" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>
+<path d="M90 300l6 16 16 6-16 6-6 16-6-16-16-6 16-6zM545 230l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#fff"/>
+</svg>
