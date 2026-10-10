@@ -1,7 +1,9 @@
 # Development only: the passwords below never leave the Codespace (ports are private by default).
 services:
   app:
-    image: mcr.microsoft.com/devcontainers/base:bookworm
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
     command: sleep infinity
     volumes:
       - ../..:/workspaces:cached
@@ -13,8 +15,12 @@ services:
       PGUSER: postgres
       PGPASSWORD: postgres
       PGDATABASE: qdeal
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/qdeal?sslmode=disable
+      DBMATE_MIGRATIONS_DIR: db/migrations
+      DBMATE_NO_DUMP_SCHEMA: "true"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgis/postgis:17-3.5

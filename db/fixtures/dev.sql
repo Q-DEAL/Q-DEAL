@@ -1,14 +1,6 @@
--- Q DEAL · localisation — demo data around Strasbourg (fictional people and addresses).
+-- Development and test fixtures: fictional people and addresses around Strasbourg.
+-- Never load this file in production (db/scripts/dev-setup.sh refuses non-local databases).
 DO $$ BEGIN PERFORM setseed(0.42); END $$;  -- reproducible blurred points
-
-INSERT INTO core.skills (code, label_fr, label_en) VALUES
-  ('remise_cles',        'Remise des clés',       'Key handover'),
-  ('accueil',            'Accueil',               'Guest welcome'),
-  ('menage',             'Ménage',                'Cleaning'),
-  ('manutention',        'Manutention',           'Handling'),
-  ('rangement_chantier', 'Rangement de chantier', 'Site tidying'),
-  ('mise_en_rayon',      'Mise en rayon',         'Shelf stocking'),
-  ('montage_evenement',  'Montage d’événement',   'Event setup');
 
 INSERT INTO core.businesses (name, sector) VALUES
   ('Conciergerie Kléber',   'conciergerie'),  -- 1

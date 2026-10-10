@@ -8,7 +8,7 @@
   "portsAttributes": {
     "5432": { "label": "PostGIS", "onAutoForward": "silent" }
   },
-  "postCreateCommand": "bash db/scripts/setup.sh",
+  "postCreateCommand": "bash db/scripts/dev-setup.sh",
   "customizations": {
     "vscode": {
       "extensions": ["mtxr.sqltools", "mtxr.sqltools-driver-pg"],
