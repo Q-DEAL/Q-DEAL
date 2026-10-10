@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff">
-    <meta name="description" content="Découvrez les parcours envisagés par Q DEAL pour les entreprises, les auto-entrepreneurs et les partenaires.">
-    <title>Parcours Q DEAL | Entreprises et auto-entrepreneurs</title>
+    <meta name="description" content="Contactez Q DEAL : demandez un renfort, proposez vos compétences ou devenez partenaire.">
+    <title>Contact | Q DEAL</title>
     <link rel="icon" href="assets/images/qdeal-favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,43 +17,62 @@
     <header class="site-header">
       <div class="header-main">
         <a class="wordmark" href="index-fr.html#top"><img src="assets/images/qdeal-logo.svg" alt="Q DEAL" width="954" height="323"></a>
-        <nav class="desktop-nav" aria-label="Navigation principale"><a href="index-fr.html#about">Le concept</a><a href="index-fr.html#companies">Entreprises</a><a href="about-us-fr.html">À propos</a><a href="contact-fr.html" aria-current=page>Contact</a></nav>
-        <div class="header-tools"><div class="language-switch" aria-label="Choisir la langue"><a class="is-current" href="contact-fr.html" lang="fr" aria-current="page">FR</a><span aria-hidden="true">|</span><a href="contact.html" lang="en">EN</a></div><button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button></div>
+        <form class="header-search" role="search" action="index-fr.html" data-site-search>
+          <label class="visually-hidden" for="header-search">Rechercher sur le site</label>
+          <input id="header-search" type="search" name="q" placeholder="Rechercher…" autocomplete="off" aria-controls="header-search-results">
+          <button type="submit" aria-label="Lancer la recherche"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m16 16 5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+          <div class="search-results" id="header-search-results" hidden></div>
+        </form>
+        <div class="header-actions"><a class="button button-outline" href="contact-fr.html?type=worker#contact-form">Devenir prestataire</a><a class="button button-dark" href="contact-fr.html?type=business#contact-form">Demander un service</a></div>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="is-current" href="contact-fr.html" lang="fr" aria-current="page">FR</a><span aria-hidden="true"></span><a href="contact.html" lang="en">EN</a></div>
+        <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
       </div>
-      <div class="header-actions"><a class="button button-outline" href="index-fr.html#independents">Devenir prestataire</a><a class="button button-dark" href="index-fr.html#estimation">Demander un service</a></div>
+      <nav class="main-nav" aria-label="Navigation principale"><ul><li class="nav-item has-panel"><button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-missions">Missions <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="nav-panel" id="nav-missions"><a href="index-fr.html#independents" data-keywords="inscription profil compétences auto-entrepreneur étudiant prestataire">Trouver une mission</a><a href="index-fr.html#location" data-keywords="carte zone ville proximité localisation">Missions à proximité</a><a href="index-fr.html#training" data-keywords="vidéo formation module apprendre tutoriel">Formations vidéo</a><a href="index-fr.html#faq" data-keywords="faq aide question">Questions fréquentes</a></div></li><li class="nav-item has-panel"><button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-entreprises">Entreprises <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="nav-panel" id="nav-entreprises"><a href="contact-fr.html?type=business#contact-form" data-keywords="devis renfort besoin réserver commande">Demander un service</a><a href="index-fr.html#estimation" data-keywords="estimation photo prix budget devis">Estimer un besoin</a><a href="index-fr.html#companies" data-keywords="btp chantier magasin commerce événementiel conciergerie syndic copropriété">Secteurs</a><a href="index-fr.html#how-it-works" data-keywords="fonctionnement étapes mise en relation">Comment ça marche</a><a href="index-fr.html#features" data-keywords="outils chatbot assistant estimation géolocalisation">Fonctionnalités</a></div></li><li class="nav-item"><a href="about-us-fr.html">À propos</a></li><li class="nav-item"><a href="contact-fr.html" aria-current="page">Contact</a></li></ul></nav>
     </header>
 
     <div class="menu-backdrop" hidden></div>
     <aside class="site-menu" id="site-menu" aria-label="Menu du site" aria-hidden="true" inert>
       <div class="menu-head"><span class="menu-label">Explorer Q DEAL</span><button class="menu-close" type="button" aria-label="Fermer le menu">×</button></div>
-
+      <div class="menu-search"><label for="site-search">Rechercher</label><input id="site-search" type="search" placeholder="Mission, compétence, secteur…"></div>
       <div class="menu-grid">
-        <section><h2>Exemples de missions</h2><a href="index-fr.html#companies">Voir les secteurs étudiés</a><a href="index-fr.html#independents">Découvrir le parcours indépendant</a><a href="index-fr.html#training">Formations vidéo prévues</a></section>
-        <section><h2>Entreprises</h2><a href="index-fr.html#estimation">Comprendre l’estimation</a><a href="index-fr.html#companies">Décrire un besoin</a><a href="index-fr.html#sectors">Secteurs</a></section>
-        <section><h2>Comment ça marche</h2><a href="index-fr.html#how-it-works">Comment ça marche</a><a href="index-fr.html#features">Fonctionnalités</a><a href="index-fr.html#faq">Questions fréquentes</a></section>
-        <section><h2>Découvrir Q DEAL</h2><a href="about-us-fr.html">Notre approche</a><a href="contact-fr.html">Contact</a></section>
+        <section><h2>Missions</h2><a href="index-fr.html#independents" data-keywords="inscription profil compétences auto-entrepreneur étudiant prestataire">Trouver une mission</a><a href="index-fr.html#location" data-keywords="carte zone ville proximité localisation">Missions à proximité</a><a href="index-fr.html#training" data-keywords="vidéo formation module apprendre tutoriel">Formations vidéo</a><a href="index-fr.html#faq" data-keywords="faq aide question">Questions fréquentes</a></section>
+        <section><h2>Entreprises</h2><a href="contact-fr.html?type=business#contact-form" data-keywords="devis renfort besoin réserver commande">Demander un service</a><a href="index-fr.html#estimation" data-keywords="estimation photo prix budget devis">Estimer un besoin</a><a href="index-fr.html#companies" data-keywords="btp chantier magasin commerce événementiel conciergerie syndic copropriété">Secteurs</a><a href="index-fr.html#how-it-works" data-keywords="fonctionnement étapes mise en relation">Comment ça marche</a><a href="index-fr.html#features" data-keywords="outils chatbot assistant estimation géolocalisation">Fonctionnalités</a></section>
+        <section><h2>Q DEAL</h2><a href="about-us-fr.html" data-keywords="équipe approche team approach">À propos</a><a href="contact-fr.html" data-keywords="email message formulaire form">Contact</a></section>
       </div>
-      <div class="menu-foot"><a class="button button-outline" href="index-fr.html#independents">Devenir prestataire</a><a class="button button-dark" href="index-fr.html#estimation">Demander un service</a></div>
+      <div class="menu-foot"><a class="button button-outline" href="contact-fr.html?type=worker#contact-form">Devenir prestataire</a><a class="button button-dark" href="contact-fr.html?type=business#contact-form">Demander un service</a></div>
     </aside>
     <main id="main">
 
-      <section class="contact-hero section-shell"><div class="contact-intro"><p class="eyebrow">Entreprise, auto-entrepreneur ou partenaire ?</p><h1>Découvrez le parcours<br><span>qui vous concerne.</span></h1><p>Q DEAL est en phase de conception. Cette page présente les parcours envisagés. Aucune inscription ni annonce de mission n’est encore ouverte.</p></div><div class="contact-cards">
-        <article class="contact-card contact-card-talent"><span class="contact-icon">01</span><p class="eyebrow">Auto-entrepreneurs et indépendants</p><h2>Présentez vos compétences</h2><p>Découvrez comment un profil professionnel, une zone d’intervention et des disponibilités pourront aider à repérer des missions locales. La création de profil n’est pas encore disponible.</p><a class="text-link" href="index-fr.html#independents">Voir le parcours indépendant <span aria-hidden="true">↗</span></a></article>
-        <article class="contact-card contact-card-business"><span class="contact-icon">02</span><p class="eyebrow">Entreprises</p><h2>Préparez une demande de renfort</h2><p>Découvrez le parcours envisagé pour décrire une tâche, joindre des photos et préciser le lieu. Cette page ne permet pas encore de demander un devis ni de publier une mission.</p><a class="text-link" href="index-fr.html#estimation">Découvrir le parcours entreprise <span aria-hidden="true">↗</span></a></article>
-        <article class="contact-card contact-card-report"><span class="contact-icon">03</span><p class="eyebrow">Partenaires et collaborateurs</p><h2>Travailler avec les acteurs du secteur</h2><p>Q DEAL explore une solution complémentaire aux équipes salariées, aux prestataires spécialisés et aux agences d’intérim pour des tâches ponctuelles et clairement définies.</p><a class="text-link" href="about-us-fr.html#approach">Lire notre approche <span aria-hidden="true">↗</span></a></article>
+      <section class="contact-hero section-shell"><div class="contact-intro"><p class="eyebrow">Entreprise, indépendant ou partenaire ?</p><h1>Parlons de<br><span>votre besoin.</span></h1><p>Une mission à confier, des compétences à proposer ou un partenariat à imaginer : écrivez-nous, nous revenons vers vous.</p></div><div class="contact-cards">
+        <article class="contact-card contact-card-talent"><span class="contact-icon">01</span><p class="eyebrow">Auto-entrepreneurs et indépendants</p><h2>Présentez vos compétences</h2><p>Renseignez vos savoir-faire, votre zone d’intervention et vos disponibilités pour recevoir des missions proches de chez vous.</p><a class="text-link" href="contact-fr.html?type=worker#contact-form">Devenir prestataire <span aria-hidden="true">↗</span></a></article>
+        <article class="contact-card contact-card-business"><span class="contact-icon">02</span><p class="eyebrow">Entreprises</p><h2>Demandez un renfort</h2><p>Décrivez la tâche, précisez le lieu et les horaires : nous vous aidons à trouver un indépendant à proximité.</p><a class="text-link" href="contact-fr.html?type=business#contact-form">Demander un service <span aria-hidden="true">↗</span></a></article>
+        <article class="contact-card contact-card-report"><span class="contact-icon">03</span><p class="eyebrow">Partenaires</p><h2>Travaillons ensemble</h2><p>Agences d’intérim, prestataires spécialisés, réseaux professionnels : Q DEAL complète les solutions existantes pour les tâches ponctuelles et clairement définies.</p><a class="text-link" href="contact-fr.html?type=partner#contact-form">Proposer un partenariat <span aria-hidden="true">↗</span></a></article>
       </div></section>
-      <section class="contact-note"><div class="section-shell"><span class="contact-note-mark" aria-hidden="true">?</span><div><p class="eyebrow">Un projet en préparation</p><h2>Des missions précises. Des attentes mieux cadrées.</h2><p>Ce site présente un prototype. Il ne permet pas encore de créer un compte, publier une mission, demander une estimation ou envoyer une demande de contact. Les fonctionnalités décrites sont en cours de conception.</p></div><a class="button button-dark" href="index-fr.html">Voir la présentation Q DEAL <span aria-hidden="true">↗</span></a></div></section>
+      <section class="contact-form-section" id="contact-form"><div class="section-shell">
+        <div class="contact-form-intro"><p class="eyebrow">Formulaire de contact</p><h2>Écrivez-nous.</h2><p>Quelques lignes suffisent : dites-nous qui vous êtes et ce dont vous avez besoin. Nous revenons vers vous par e-mail.</p></div>
+        <form class="contact-form" data-contact-form data-contact-email="contact@example.com">
+          <fieldset class="profile-choice field-full"><legend>Vous êtes</legend><label><input type="radio" name="type" value="worker" data-label="Indépendant" required> Indépendant</label><label><input type="radio" name="type" value="business" data-label="Entreprise"> Entreprise</label><label><input type="radio" name="type" value="partner" data-label="Partenaire"> Partenaire</label></fieldset>
+          <div class="field"><label for="cf-name">Nom et prénom</label><input id="cf-name" name="name" autocomplete="name" required></div>
+          <div class="field"><label for="cf-email">E-mail</label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="cf-phone">Téléphone <small>(facultatif)</small></label><input id="cf-phone" name="phone" type="tel" autocomplete="tel"></div>
+          <div class="field"><label for="cf-city">Ville ou code postal</label><input id="cf-city" name="city" autocomplete="address-level2"></div>
+          <div class="field field-full"><label for="cf-company">Entreprise <small>(facultatif)</small></label><input id="cf-company" name="company" autocomplete="organization"></div>
+          <div class="field field-full"><label for="cf-message">Votre message</label><textarea id="cf-message" name="message" rows="6" required placeholder="Décrivez la mission, vos compétences ou votre projet de partenariat."></textarea></div>
+          <label class="consent field-full"><input type="checkbox" name="consent" required> J’accepte que Q DEAL utilise ces informations pour me recontacter au sujet de ma demande.</label>
+          <div class="form-actions field-full"><button class="button button-dark" type="submit">Envoyer le message <span aria-hidden="true">↗</span></button><p class="form-status" role="status" aria-live="polite"></p></div>
+        </form>
+      </div></section>
 
     </main>
 
     <footer class="site-footer" id="footer">
       <div class="footer-columns section-shell">
-        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Pour les indépendants <span>−</span></button></h2><div><a href="index-fr.html#independents">Découvrir le parcours indépendant</a><a href="index-fr.html#training">Formations vidéo prévues</a><a href="index-fr.html#faq">Questions fréquentes</a></div></section>
-        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Pour les entreprises <span>−</span></button></h2><div><a href="index-fr.html#estimation">Comprendre l’estimation</a><a href="index-fr.html#how-it-works">Comment ça marche</a><a href="index-fr.html#sectors">Secteurs</a></div></section>
-        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Découvrir Q DEAL <span>−</span></button></h2><div><a href="about-us-fr.html">Notre approche</a><a href="contact-fr.html">Contact</a><a href="index-fr.html#faq">Questions fréquentes</a></div></section>
-        <section class="footer-column footer-brand"><a class="wordmark" href="index-fr.html#top"><img src="assets/images/qdeal-logo.svg" alt="Q DEAL" width="954" height="323"></a><p>Le renfort local pour les missions de terrain.</p><p class="footer-note">Des missions ponctuelles, en complément des équipes et prestataires en place.</p></section>
+        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Pour les indépendants <span>−</span></button></h2><div><a href="index-fr.html#independents">Trouver une mission</a><a href="index-fr.html#training">Formations vidéo</a><a href="index-fr.html#faq">Questions fréquentes</a></div></section>
+        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Pour les entreprises <span>−</span></button></h2><div><a href="contact-fr.html?type=business#contact-form">Demander un service</a><a href="index-fr.html#estimation">Estimer un besoin</a><a href="index-fr.html#companies">Secteurs</a></div></section>
+        <section class="footer-column is-open"><h2><button type="button" aria-expanded="true">Découvrir Q DEAL <span>−</span></button></h2><div><a href="about-us-fr.html">À propos</a><a href="index-fr.html#how-it-works">Comment ça marche</a><a href="contact-fr.html">Contact</a></div></section>
+        <section class="footer-column footer-brand"><a class="wordmark" href="index-fr.html#top"><img src="assets/images/qdeal-logo.svg" alt="Q DEAL" width="954" height="323"></a><p>La bonne aide, juste à côté.</p><p class="footer-note">Des missions délimitées, en complément des équipes en place.</p></section>
       </div>
-      <div class="footer-bottom section-shell"><span>© Q DEAL. Marketplace de renfort local pour les missions de terrain.</span><div><a href="about-us-fr.html">À propos</a><a href="contact-fr.html">Contact</a></div><a class="language-footer" href="contact.html">FR&nbsp; | &nbsp;EN</a></div>
+      <div class="footer-bottom section-shell"><span>© Q DEAL. Une mise en relation pensée pour les besoins de terrain.</span><div><a href="about-us-fr.html">À propos</a><a href="contact-fr.html">Contact</a></div><a class="language-footer" href="contact.html" lang="en">FR&nbsp; | &nbsp;EN</a></div>
     </footer>
     <script src="main.js"></script>
   </body>
