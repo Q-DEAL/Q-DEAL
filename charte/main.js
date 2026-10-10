@@ -67,10 +67,44 @@ navItems.forEach((item) => {
   item.querySelectorAll(".nav-panel a").forEach((link) => link.addEventListener("click", () => closeNavPanels()));
 });
 
-/* Header search: suggests pages and sections from the site menu */
+/* Header search: missions around a place first (assets/demo/places.js), then the site's pages and
+   sections; any other text searches the missions by keyword. */
 const searchForm = document.querySelector("[data-site-search]");
 const searchInput = searchForm.querySelector("input");
 const searchResults = searchForm.querySelector(".search-results");
+const missionsPage = searchForm.getAttribute("action");
+const searchText = isFrench
+  ? { near: (place) => `Missions près de ${place}`, count: (n) => `${n} ${n > 1 ? "missions" : "mission"}`, examples: "Exemples de missions", keyword: (q) => `Missions « ${q} »`, keywordHint: "Rechercher dans les missions" }
+  : { near: (place) => `Tasks near ${place}`, count: (n) => `${n} ${n > 1 ? "tasks" : "task"}`, examples: "Example tasks", keyword: (q) => `“${q}” tasks`, keywordHint: "Search the tasks" };
+
+// Best matches first: exact name, exact postcode, then names or postcodes starting with the text.
+function rankPlaces(query, places) {
+  const q = normalize(query);
+  if (!q) return [];
+  return places.map((place) => {
+    const label = normalize(isFrench ? place.labelFr : place.labelEn);
+    let score = 0;
+    if (label === q || place.key === q) score = 4;
+    else if (place.terms.includes(q)) score = 3;
+    else if (label.startsWith(q) || place.terms.some((term) => term.startsWith(q) || (/^\d+$/.test(term) && q.startsWith(term)))) score = 2;
+    else if (label.includes(q)) score = 1;
+    return { place, score };
+  }).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).map((entry) => entry.place);
+}
+window.QDEAL_SEARCH = { normalize, rankPlaces };
+
+function placeEntries(query) {
+  return rankPlaces(query, window.QDEAL_PLACES || []).slice(0, 4).map((place) => ({
+    href: `${missionsPage}?lieu=${encodeURIComponent(place.key)}`,
+    label: searchText.near(isFrench ? place.labelFr : place.labelEn),
+    group: place.missionCount ? searchText.count(place.missionCount) : searchText.examples,
+  }));
+}
+
+function keywordEntry(query) {
+  return { href: `${missionsPage}?q=${encodeURIComponent(query.trim())}`, label: searchText.keyword(query.trim()), group: searchText.keywordHint };
+}
+
 const searchIndex = [];
 siteMenu.querySelectorAll(".menu-grid section").forEach((section) => {
   section.querySelectorAll("a").forEach((link) => {
@@ -88,7 +122,10 @@ siteMenu.querySelectorAll(".menu-grid section").forEach((section) => {
 function findMatches(query) {
   const words = normalize(query).split(/\s+/).filter(Boolean);
   if (!words.length) return [];
-  return searchIndex.filter((entry) => words.every((word) => entry.haystack.includes(word))).slice(0, 6);
+  const places = placeEntries(query);
+  const pages = searchIndex.filter((entry) => words.every((word) => entry.haystack.includes(word)));
+  const keyword = !places.length && normalize(query).length >= 3 ? [keywordEntry(query)] : [];
+  return [...places, ...pages, ...keyword].slice(0, 6);
 }
 
 function renderResults() {
