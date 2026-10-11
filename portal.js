@@ -1,5 +1,10 @@
-/* Student portal: student-*.html — the student's own space (dashboard, finding a prestation,
-   applications, planning, administrative file, profile, notifications).
+/* Provider portal (« Espace prestataire »): student-*.html — the provider's own space, students and
+   craftsmen alike (dashboard with recommended missions, finding a prestation, applications, planning,
+   messages, administrative follow-up, profile, notifications). The file names keep their original
+   student- prefix so that existing links keep working.
+
+   Shared pieces come from ui.js (components), market.js (score, recommendations, price estimate,
+   conversations) and admin-rules.js (quarters, deadlines, contribution regime).
 
    Where the data comes from. The prestations are read from assets/demo/prestations.js, the snapshot
    that db/scripts/export-demo.sh produces by calling the real database functions
@@ -26,36 +31,10 @@
   if (!data || !page) return;
 
   /* ---------------------------------------------------------------- texts and helpers */
-  const locale = "fr-FR";
-  const plural = (n, one, many) => (n > 1 ? many : one);
-  const dateFormat = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
-  const shortDate = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" });
-  const oneDecimal = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-  const skillLabel = new Map(data.skills.map((skill) => [skill.code, skill.fr]));
-  const groupLabel = new Map(data.groups.map((group) => [group.code, group.fr]));
-  const SECTORS = {
-    btp: "BTP", commerce: "Commerce", conciergerie: "Conciergerie", syndic: "Syndic de copropriété",
-    evenementiel: "Événementiel", particulier: "Particulier", entreprise: "Entreprise", automobile: "Automobile",
-  };
-
-  const el = (tag, className, text) => {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
-    return node;
-  };
-  const button = (className, text, onClick) => {
-    const node = el("button", className, text);
-    node.type = "button";
-    node.addEventListener("click", onClick);
-    return node;
-  };
-  const link = (className, text, href) => {
-    const node = el("a", className, text);
-    node.href = href;
-    return node;
-  };
+  const { QD, QDM, QDA } = window;
+  const { plural, dateFormat, oneDecimal, euros, stamp, el, button, link, icon, announce, emptyState, tabs, progressBar } = QD;
+  const skillLabel = QDM.skillLabel;
+  const SECTORS = QDM.SECTORS;
   const dateFromDays = (days) => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
@@ -66,9 +45,6 @@
     const when = days <= 0 ? "Aujourd’hui" : days === 1 ? "Demain" : `Dans ${days} jours`;
     return `${when} · ${dateFormat.format(dateFromDays(days))}`;
   };
-  const stamp = (iso) => (iso ? shortDate.format(new Date(iso)) : "");
-  const live = document.querySelector("[data-live]");
-  const announce = (message) => { if (live) live.textContent = message; };
 
   /* ---------------------------------------------------------------- the student’s own state */
   /* One key, this browser only. An API would replace reads with the api functions named below. */
@@ -83,6 +59,7 @@
     responses: {},         // mission id -> { status, at, placeKey, done, doneAt }
     documents: {},         // document code -> { state, fileName, at }
     read: [],              // notification ids already read
+    admin: null,           // administrative follow-up: { done: { action id: iso }, other: { quarter key: euros } }
   };
 
   function readState() {
@@ -114,6 +91,7 @@
   })();
   const students = [...studentsById.values()].sort((a, b) => a.id - b.id);
   const student = studentsById.get(state.studentId) || students[0];
+  const me = QDM.provider(student.id);    // public profile and history (assets/demo/marketplace.js)
   const mySkills = state.skills || student.skills;
   const place = data.places.find((entry) => entry.key === state.placeKey) || data.places[0];
   const placeLabel = (entry) => entry.labelFr;
@@ -149,6 +127,48 @@
       complete: required.every((row) => row.state === "validated"),
     };
   };
+
+  /* ---------------------------------------------------------------- administrative follow-up */
+  /* Turnover, deadlines and checklist (admin-rules.js). Nothing is sent anywhere: the checklist and
+     the turnover made outside Q DEAL are kept in this browser, like the rest of the portal. */
+  const today = new Date();
+  const adminState = () => ({ done: {}, other: {}, ...(state.admin || {}) });
+
+  // The deadlines already past when this demo starts are taken as handled; the next ones are to do.
+  if (!state.admin) save({
+    admin: {
+      done: Object.fromEntries(QDA.deadlines(today, { since: me.since })
+        .filter((row) => row.daysLeft < 0)
+        .flatMap((row) => row.actions.map((action) => [action.id, today.toISOString()]))),
+      other: {},
+    },
+  });
+
+  function adminDeadlines() {
+    const admin = adminState();
+    return QDA.deadlines(today, { since: me.since }).map((row) => {
+      const actions = row.actions.map((action) => ({ ...action, done: Boolean(admin.done[action.id]) }));
+      const complete = actions.every((action) => action.done);
+      const status = row.kind === "info" ? "info" : complete ? "done" : row.daysLeft < 0 ? "late" : "todo";
+      return { ...row, actions, complete, status, stage: complete ? null : QDA.reminderStage(row.daysLeft) };
+    });
+  }
+  const adminDue = () => adminDeadlines().filter((row) => row.kind !== "info" && !row.complete && row.stage);
+
+  // Q DEAL turnover: the missions completed before this demo (market.js) and those marked done here,
+  // at the price agreed in the messages or, failing that, the middle of the estimate.
+  function revenueLines() {
+    const here = appliedRows().filter((row) => row.done).map((row) => {
+      const info = QDM.missionInfo(row.id);
+      const agreed = QDM.agreedPrice(student.id, row.id);
+      return {
+        date: (row.response.doneAt || today.toISOString()).slice(0, 10), sector: row.sector, source: "qdeal", missionId: row.id,
+        amount: agreed ?? QDM.estimatePrice({ skills: row.skills, durationH: info.durationH, kind: info.kind }).mid,
+        priced: agreed ? "agreed" : "estimate",
+      };
+    });
+    return [...QDM.pastRevenue(student.id), ...here];
+  }
 
   /* ---------------------------------------------------------------- the prestations */
   const AVAILABILITY = [
@@ -275,6 +295,20 @@
       title: "Confirmez votre zone de déplacement",
       body: "Elle décide des prestations qui vous sont proposées.", href: "student-profile.html",
     });
+    adminDue().forEach((row) => rows.push({
+      id: `admin-${row.id}-${row.stage.label}`, kind: "administratif", level: row.stage.level,
+      title: `${row.title} · ${row.stage.label}`,
+      body: `${row.approx ? "Vers le" : "Avant le"} ${QD.dayMonth.format(row.due)}. ${row.actions.filter((action) => !action.done).length} ${plural(row.actions.filter((action) => !action.done).length, "action reste", "actions restent")} à faire.`,
+      href: "student-admin.html",
+    }));
+    QDM.conversations({ providerId: student.id }).filter((row) => QDM.unread(row, "provider")).forEach((row) => {
+      const last = row.messages[row.messages.length - 1];
+      rows.push({
+        id: `msg-${row.id}-${last.at}`, kind: "message", level: "info", at: last.at,
+        title: `Nouveau message de ${row.business}`, body: last.text || (last.kind === "mission" ? "Proposition de mission" : "Proposition de prix"),
+        href: `student-messages.html?c=${row.id}`,
+      });
+    });
     openForMe().slice(0, 3).forEach((row) => rows.push({
       id: `match-${row.id}`, kind: "prestation", level: "info",
       title: "Nouvelle prestation pour vos compétences",
@@ -289,120 +323,32 @@
   const unreadCount = () => notifications().filter((row) => !row.read).length;
 
   /* ---------------------------------------------------------------- the portal shell */
-  const NS = "http://www.w3.org/2000/svg";
-  const ICONS = {
-    grid: ["M4 4h6v6H4z", "M14 4h6v6h-6z", "M4 14h6v6H4z", "M14 14h6v6h-6z"],
-    search: ["M10.5 3.5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z", "m15.5 15.5 5 5"],
-    send: ["M21 3 10.5 13.5", "M21 3l-6.5 18-4-7.5-7.5-4z"],
-    calendar: ["M4 6.5h16v14H4z", "M4 10.5h16", "M8.5 3.5v4", "M15.5 3.5v4"],
-    file: ["M6 3.5h7l5 5v12H6z", "M13 3.5v5h5"],
-    user: ["M12 11.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", "M4.5 20.5c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"],
-    bell: ["M18 16.5V11a6 6 0 0 0-12 0v5.5L4.5 19h15z", "M9.5 19a2.5 2.5 0 0 0 5 0"],
-    check: ["m5 12.5 4.5 4.5L19 7"],
-    alert: ["M12 3.5 21.5 20H2.5z", "M12 10v4.5", "M12 17.3v.2"],
-    pin: ["M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z", "M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"],
-    clock: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M12 7.5V12l3.5 2"],
-    building: ["M4.5 20.5v-15h10v15", "M14.5 10.5h5v10", "M7.5 9h4", "M7.5 13h4"],
-    back: ["M10 5H5v14h5", "m14 8 4 4-4 4", "M18 12H8"],
-  };
-  function icon(name) {
-    const svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("aria-hidden", "true");
-    svg.setAttribute("focusable", "false");
-    (ICONS[name] || []).forEach((d) => {
-      const path = document.createElementNS(NS, "path");
-      path.setAttribute("d", d);
-      svg.append(path);
-    });
-    return svg;
-  }
-
+  const unreadMessages = () => QDM.conversations({ providerId: student.id }).reduce((total, row) => total + QDM.unread(row, "provider"), 0);
   const NAV = [
     { key: "dashboard", href: "student-portal.html", label: "Tableau de bord", icon: "grid" },
     { key: "tasks", href: "student-tasks.html", label: "Trouver une prestation", icon: "search", also: ["task"] },
     { key: "applications", href: "student-applications.html", label: "Mes candidatures", icon: "send", count: () => appliedRows().filter((row) => phaseOf(row) !== "done").length },
     { key: "schedule", href: "student-schedule.html", label: "Mes prestations", icon: "calendar", count: () => appliedRows().filter((row) => phaseOf(row) === "next").length },
-    { key: "documents", href: "student-documents.html", label: "Suivi administratif", icon: "file", count: () => dossier().missing, alert: true },
+    { key: "messages", href: "student-messages.html", label: "Messages", icon: "chat", count: unreadMessages, alert: true },
+    { key: "admin", href: "student-admin.html", label: "Suivi administratif", icon: "file", also: ["documents"], count: () => adminDue().length + dossier().missing, alert: true },
     { key: "profile", href: "student-profile.html", label: "Mon profil", icon: "user" },
     { key: "notifications", href: "student-notifications.html", label: "Notifications", icon: "bell", count: () => unreadCount(), alert: true },
   ];
 
-  const sidebar = document.querySelector("[data-portal-nav]");
-  const backdrop = document.querySelector("[data-portal-backdrop]");
-  const main = document.querySelector(".sp-main");
-  let burger = null;
-
-  function setDrawer(open) {
-    sidebar.classList.toggle("is-open", open);
-    backdrop.hidden = !open;
-    document.body.classList.toggle("sp-locked", open);
-    if (burger) {
-      burger.setAttribute("aria-expanded", String(open));
-      burger.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
-    }
-    if (open) sidebar.querySelector("a, button")?.focus();
-    else burger?.focus();
-  }
-
-  function renderNav() {
-    const list = el("ul", "sp-nav");
-    NAV.forEach((item) => {
-      const row = el("li");
-      const current = item.key === page || (item.also || []).includes(page);
-      const anchor = link(`sp-nav-link${current ? " is-current" : ""}`, "", item.href);
-      if (current) anchor.setAttribute("aria-current", "page");
-      anchor.append(icon(item.icon), el("span", "sp-nav-label", item.label));
-      const total = item.count ? item.count() : 0;
-      if (total) {
-        const badge = el("span", `sp-nav-count${item.alert ? " is-alert" : ""}`, String(total));
-        badge.setAttribute("aria-label", `${total} à traiter`);
-        anchor.append(badge);
-      }
-      row.append(anchor);
-      list.append(row);
-    });
-    const help = el("div", "sp-nav-foot");
-    help.append(
-      link("sp-nav-back", "Retour au site Q DEAL", "index.html"),
-      link("sp-nav-back", "Contacter Q DEAL", "contact.html?type=worker#contact-form"),
-    );
-    sidebar.replaceChildren(el("p", "sp-nav-title", "Espace étudiant"), list, help);
-  }
-
-  function renderTopbar() {
-    const bar = document.querySelector("[data-portal-topbar]");
-    burger = button("sp-burger", "", () => setDrawer(!sidebar.classList.contains("is-open")));
-    burger.setAttribute("aria-controls", "sp-sidebar");
-    burger.setAttribute("aria-expanded", "false");
-    burger.setAttribute("aria-label", "Ouvrir le menu");
-    burger.append(el("span"), el("span"), el("span"));
-
-    const brand = link("sp-brand", "", "student-portal.html");
-    const logo = el("img");
-    logo.src = "assets/images/qdeal-logo.svg";
-    logo.alt = "Q DEAL";
-    logo.width = 954;
-    logo.height = 323;
-    brand.append(logo, el("span", "sp-brand-tag", "Espace étudiant"));
-
-    const session = el("details", "sp-session");
-    const head = el("summary");
-    head.append(el("span", "loc-avatar sp-avatar", student.firstName.slice(0, 1)), el("span", "sp-session-name", student.firstName));
-    const panel = el("div", "sp-session-panel");
+  function sessionPanel() {
     const identity = el("p", "sp-session-identity");
-    identity.append(el("b", "", student.firstName), el("span", "", student.rating
-      ? `★ ${oneDecimal.format(student.rating)} · ${student.reviewCount} ${plural(student.reviewCount, "avis", "avis")}`
-      : "Pas encore d’avis"));
-    panel.append(identity);
+    identity.append(el("b", "", me.displayName), el("span", "", `${me.kindLabel} · ${me.rating
+      ? `★ ${oneDecimal.format(me.rating)} · ${me.ratingCount} ${plural(me.ratingCount, "avis", "avis")}`
+      : "Pas encore d’avis"}`));
 
     const picker = el("div", "field sp-session-field");
-    const pickerLabel = el("label", "", "Étudiant de la session de démonstration");
+    const pickerLabel = el("label", "", "Prestataire de la session de démonstration");
     pickerLabel.htmlFor = "sp-student";
     const select = el("select");
     select.id = "sp-student";
     students.forEach((entry) => {
-      const option = new Option(`${entry.firstName} · ${entry.skills.length} ${plural(entry.skills.length, "compétence", "compétences")}`, String(entry.id));
+      const profile = QDM.provider(entry.id);
+      const option = new Option(`${entry.firstName} · ${profile ? profile.kindLabel : ""} · ${entry.skills.length} ${plural(entry.skills.length, "compétence", "compétences")}`, String(entry.id));
       option.selected = entry.id === student.id;
       select.append(option);
     });
@@ -410,41 +356,34 @@
       save({ studentId: Number(select.value), skills: null });
       window.location.reload();
     });
-    picker.append(pickerLabel, select, el("small", "", "Chaque étudiant ne voit que ses compétences, sa zone et ses candidatures."));
-    panel.append(picker);
+    picker.append(pickerLabel, select, el("small", "", "Chaque prestataire ne voit que ses compétences, sa zone, ses candidatures et ses messages."));
 
-    panel.append(button("sp-session-reset", "Réinitialiser cet espace", () => {
-      if (!window.confirm("Effacer vos candidatures, votre profil et votre dossier enregistrés dans ce navigateur ?")) return;
+    const reset = button("sp-session-reset", "Réinitialiser cet espace", () => {
+      if (!window.confirm("Effacer vos candidatures, votre profil, votre suivi administratif et les messages enregistrés dans ce navigateur ?")) return;
       try { localStorage.removeItem(STORE_KEY); } catch { /* nothing stored */ }
+      QDM.reset();
       window.location.reload();
-    }));
-    session.append(head, panel);
-    document.addEventListener("click", (event) => { if (!session.contains(event.target)) session.open = false; });
+    });
+    return QD.sessionMenu({ initial: student.firstName.slice(0, 1), name: student.firstName, identity, content: [picker, reset] });
+  }
 
-    bar.replaceChildren(burger, brand, el("div", "sp-topbar-spacer"), session);
+  let portal = null;
+  const renderNav = () => portal && portal.renderNav();
+  function renderShell() {
+    portal = QD.shell({
+      page, nav: NAV, title: "Espace prestataire", home: "student-portal.html", session: sessionPanel(),
+      foot: [["Retour au site Q DEAL", "index.html"], ["Contacter Q DEAL", "contact.html?type=worker#contact-form"]],
+    });
   }
 
   function renderNotice() {
-    const notice = el("aside", "sp-notice");
-    notice.append(icon("alert"));
-    const body = el("div");
-    body.append(
-      el("b", "", "Espace de démonstration"),
-      el("p", "", "Les prestations viennent de l’instantané des fonctions de la base, sur des données fictives. Vos candidatures, votre profil et votre dossier sont enregistrés dans ce navigateur : il n’y a pas encore de compte ni de serveur."),
-    );
-    if (!storageWorks) body.append(el("p", "", "Ce navigateur refuse l’enregistrement local : vos actions seront perdues en quittant la page."));
-    notice.append(body);
-    main.prepend(notice);
+    QD.notice("Espace de démonstration", [
+      "Les prestations viennent de l’instantané des fonctions de la base ; profils, historiques, messages et estimations sont des données fictives. Vos actions sont enregistrées dans ce navigateur : il n’y a pas encore de compte ni de serveur.",
+      !storageWorks || !QDM.storageWorks() ? "Ce navigateur refuse l’enregistrement local : vos actions seront perdues en quittant la page." : "",
+    ]);
   }
 
   /* ---------------------------------------------------------------- shared pieces */
-  function emptyState(title, body, action) {
-    const box = el("div", "sp-empty");
-    box.append(el("p", "sp-empty-title", title), el("p", "sp-empty-body", body));
-    if (action) box.append(link("button button-dark", action.label, action.href));
-    return box;
-  }
-
   function skillList(row) {
     const list = el("ul", "loc-skills");
     row.skills.forEach((code) => {
@@ -555,32 +494,115 @@
     return card;
   }
 
-  function tabs(container, entries, active, onPick) {
-    container.replaceChildren(...entries.map((entry) => {
-      const node = button(`sp-tab${entry.key === active ? " is-active" : ""}`, entry.label, () => onPick(entry.key));
-      node.setAttribute("aria-pressed", String(entry.key === active));
-      if (entry.count !== undefined) node.append(el("span", "sp-tab-count", String(entry.count)));
-      return node;
-    }));
-  }
-
-  /* ---------------------------------------------------------------- dashboard */
-  function progressBar(done, total) {
-    const percent = total ? Math.round((done / total) * 100) : 0;
-    const box = el("div", "sp-progress");
-    const track = el("div", "sp-progress-track");
-    const fill = el("div", "sp-progress-fill");
-    fill.style.width = `${percent}%`;
-    track.append(fill);
-    track.setAttribute("role", "progressbar");
-    track.setAttribute("aria-valuenow", String(percent));
-    track.setAttribute("aria-valuemin", "0");
-    track.setAttribute("aria-valuemax", "100");
-    track.setAttribute("aria-label", `${percent} % complété`);
-    box.append(track, el("p", "sp-progress-value", `${percent} % · ${done} sur ${total}`));
+  /* ---------------------------------------------------------------- recommended missions */
+  /* The dashboard's first block: real open missions of the zone ranked by market.js (the ones the
+     provider can accept first). The price is always an estimate, labelled as such: the real price is
+     set between the provider and the business, through « Proposer un prix ». */
+  function estimateBox(estimate) {
+    const box = el("div", "qd-estimate");
+    const head = el("p", "qd-estimate-head");
+    head.append(icon("spark"), el("span", "", "Estimation IA"));
+    const value = el("p", "qd-estimate-value");
+    value.append(el("b", "", `${euros.format(estimate.low)} – ${euros.format(estimate.high)}`), el("span", "", ` ${estimate.unit}`));
+    box.append(head, value, el("p", "qd-estimate-note", `Indicative, jamais un prix ferme · ${estimate.basis}`));
     return box;
   }
 
+  function businessLine(row) {
+    const line = el("div", "qd-business-line");
+    const name = el("p", "qd-business-name");
+    name.append(icon("building"), el("b", "", row.business));
+    line.append(name);
+    if (row.owner) {
+      line.append(QD.stars(row.owner.rating, row.owner.ratingCount, ["avis", "avis"]),
+        el("span", "qd-business-done", `${row.owner.missionsDone} missions réalisées`));
+    }
+    return line;
+  }
+
+  function chatDialog(businessName, missionId, intro) {
+    const conversation = QDM.openConversation(businessName, student.id, missionId);
+    QDM.markRead(conversation.id, "provider");
+    const view = QD.thread({
+      conversation, me: "provider", names: { business: businessName, provider: student.firstName },
+      placeholder: intro || "Bonjour, je suis disponible pour cette mission…",
+      onSend: (text) => { QDM.send(conversation.id, { from: "provider", kind: "text", text, missionId }); renderNav(); },
+    });
+    QD.dialog({
+      title: businessName, lede: "Échangez avant de vous engager : horaires, accès, matériel, prix.", wide: true,
+      content: [view, link("sp-link", "Ouvrir dans mes messages", `student-messages.html?c=${conversation.id}`)],
+    });
+  }
+
+  function priceDialog(row, onDone) {
+    const amount = QD.field({ name: "amount", label: `Votre prix (${row.estimate.unit})`, type: "number", min: 5, step: 1, value: row.estimate.mid, required: true,
+      hint: `Estimation IA : ${euros.format(row.estimate.low)} – ${euros.format(row.estimate.high)}. Elle sert de repère : vous restez libre de votre prix.` });
+    const message = QD.field({ name: "text", label: "Message (facultatif)", kind: "textarea", placeholder: "Ce qui est compris dans votre prix : matériel, produits, durée…" });
+    QD.dialog({
+      title: "Proposer un prix", lede: `${row.title} · ${row.business}`, submitLabel: "Envoyer ma proposition",
+      content: [amount, message],
+      onSubmit: (values) => {
+        const conversation = QDM.openConversation(row.business, student.id, row.id);
+        QDM.send(conversation.id, {
+          from: "provider", kind: "price", amount: Number(values.get("amount")), missionId: row.id, subject: row.title,
+          estimate: { low: row.estimate.low, high: row.estimate.high }, text: String(values.get("text") || "").trim(),
+        });
+        announce(`Proposition de ${euros.format(Number(values.get("amount")))} envoyée à ${row.business}.`);
+        onDone();
+      },
+    });
+  }
+
+  function offerCard(row, refresh) {
+    const card = el("li", "sp-card qd-offer");
+    const head = el("div", "sp-card-head");
+    const kind = el("span", `sp-status ${row.info.kind === "recurrente" ? "is-sent" : "is-open"}`, row.info.frequency ? `${row.info.kindLabel} · ${row.info.frequency}` : row.info.kindLabel);
+    head.append(kind, el("span", "sp-card-date", startsLabel(row.startsInDays)));
+    card.append(head, businessLine(row));
+
+    const body = el("div", "qd-offer-body");
+    const main = el("div", "qd-offer-main");
+    main.append(link("sp-card-title", row.title, detailHref(row)));
+    const place = el("p", "qd-offer-place");
+    place.append(icon("pin"), el("span", "", `${row.postalCode} ${row.city} · à ≈ ${row.distanceKm} km de votre zone`));
+    main.append(place, QD.chips(row.info.keywords.slice(0, 3)));
+    body.append(main, estimateBox(row.estimate));
+    card.append(body);
+
+    const proposed = QDM.agreedPrice(student.id, row.id);
+    if (proposed) card.append(el("p", "qd-offer-proposed", `Dernière proposition de prix : ${euros.format(proposed)}`));
+    const blocked = blockReason(row);
+    if (blocked) {
+      const reason = el("p", "sp-reason");
+      reason.append(el("span", "", blocked.text));
+      if (blocked.fix) reason.append(link("sp-link", blocked.fix.label, blocked.fix.href));
+      card.append(reason);
+    }
+
+    const actions = el("div", "sp-card-actions");
+    actions.append(button("button button-outline", "Contacter l’entreprise", () => chatDialog(row.business, row.id)));
+    const price = button("button button-dark", "Proposer un prix", () => priceDialog(row, refresh));
+    if (blocked) { price.disabled = true; price.title = "Disponible quand vous pouvez accepter cette mission"; }
+    actions.append(price);
+    card.append(actions);
+    return card;
+  }
+
+  function renderRecommended() {
+    const box = document.querySelector("[data-recommended]");
+    if (!box) return;
+    const rows = QDM.recommendMissions(rowsOf(place).filter((row) => !row.isExample && !row.applied), state.radiusKm).slice(0, 4);
+    const refresh = () => { renderRecommended(); renderNav(); };
+    if (!rows.length) {
+      box.replaceChildren(emptyState("Pas de mission à vous recommander pour l’instant", "Élargissez votre zone ou ajoutez des compétences : les recommandations en dépendent.", { label: "Mettre à jour mon profil", href: "student-profile.html" }));
+      return;
+    }
+    const list = el("ol", "sp-cards");
+    rows.forEach((row) => list.append(offerCard(row, refresh)));
+    box.replaceChildren(list);
+  }
+
+  /* ---------------------------------------------------------------- dashboard */
   function renderDashboard() {
     const applied = appliedRows();
     const pending = applied.filter((row) => phaseOf(row) !== "done");
@@ -593,6 +615,7 @@
     const refresh = () => renderDashboard();
 
     document.querySelector("[data-greeting]").textContent = `Bonjour ${student.firstName}`;
+    renderRecommended();
     document.querySelector("[data-lede]").textContent = `Votre zone est ${placeLabel(place)}, avec un rayon de ${state.radiusKm} km. ${open.length
       ? `${open.length} ${plural(open.length, "prestation correspond", "prestations correspondent")} à vos compétences en ce moment.`
       : "Aucune prestation ne correspond à vos compétences dans cette zone pour l’instant."}`;
@@ -832,7 +855,7 @@
       return;
     }
 
-    document.title = `${row.title} | Espace étudiant Q DEAL`;
+    document.title = `${row.title} | Espace prestataire Q DEAL`;
     document.querySelector("[data-crumb]").textContent = row.title;
     const blocked = blockReason(row);
 
@@ -888,7 +911,7 @@
         : "Avant votre candidature, la prestation est placée dans un cercle de 1 km et seule la ville et le code postal sont affichés."),
     );
     const seen = el("div", "sp-note");
-    seen.append(el("b", "", "Ce que l’entreprise voit de vous"), el("p", "", `Votre prénom (${student.firstName}), vos compétences, votre note${student.rating ? ` (★ ${oneDecimal.format(student.rating)})` : " (pas encore d’avis)"} et votre distance au kilomètre. Jamais votre adresse.`));
+    seen.append(el("b", "", "Ce que l’entreprise voit de vous"), el("p", "", `Votre prénom (${student.firstName}), vos compétences, votre note${me.rating ? ` (★ ${oneDecimal.format(me.rating)})` : " (pas encore d’avis)"} et votre distance au kilomètre. Jamais votre adresse.`));
     side.append(privacy, seen);
 
     const layout = el("div", "sp-detail");
@@ -1062,6 +1085,245 @@
     legend.append(el("li", "sp-inline-note", "Liste indicative : les pièces demandées seront confirmées par Q DEAL. La base de données ne contient pas encore de dossier administratif."));
   }
 
+  /* ---------------------------------------------------------------- administrative follow-up page */
+  const ADMIN_STATUS = {
+    todo: { label: "À faire", className: "is-open" },
+    late: { label: "En retard", className: "is-refused" },
+    done: { label: "Fait", className: "is-accepted" },
+    info: { label: "À savoir", className: "is-sent" },
+  };
+  const external = (text, href) => {
+    const anchor = link("sp-link", text, href);
+    anchor.target = "_blank";
+    anchor.rel = "noopener";
+    return anchor;
+  };
+  const dueText = (row) => `${row.kind === "info" ? "À partir du" : row.approx ? "Vers le" : "Avant le"} ${QD.dayMonth.format(row.due)}`;
+  const countdown = (row) => (row.daysLeft < 0 ? `Passée de ${-row.daysLeft} j` : row.daysLeft === 0 ? "Aujourd’hui" : `Dans ${row.daysLeft} j`);
+
+  function toggleAction(actionId, done) {
+    const admin = adminState();
+    const next = { ...admin.done };
+    if (done) next[actionId] = new Date().toISOString();
+    else delete next[actionId];
+    save({ admin: { ...admin, done: next } });
+  }
+
+  function checklist(row, refresh) {
+    const list = el("ul", "qd-checklist");
+    row.actions.forEach((action) => {
+      const item = el("li", action.done ? "is-done" : "");
+      const label = el("label");
+      const input = el("input");
+      input.type = "checkbox";
+      input.checked = action.done;
+      input.addEventListener("change", () => {
+        toggleAction(action.id, input.checked);
+        announce(`${action.label} : ${input.checked ? "fait" : "à faire"}.`);
+        refresh();
+      });
+      label.append(input, el("span", "", action.label));
+      item.append(label);
+      list.append(item);
+    });
+    return list;
+  }
+
+  // What to declare for a quarter: Q DEAL turnover of that quarter + what the provider made elsewhere.
+  function quarterDeclaration(quarter, lines) {
+    const key = QDA.quarterKey(quarter);
+    const qdeal = QDA.revenueByQuarter(lines, quarter.year)[quarter.q - 1].amount;
+    return QDA.declaration(quarter, qdeal, Number(adminState().other[key] || 0));
+  }
+
+  function renderAdmin() {
+    const lines = revenueLines();
+    const rows = adminDeadlines();
+    const refresh = () => { renderAdmin(); renderNav(); };
+
+    /* the next deadline */
+    const nextBox = document.querySelector("[data-admin-next]");
+    const next = rows.find((row) => row.kind !== "info" && !row.complete);
+    if (!next) nextBox.replaceChildren(emptyState("Tout est à jour", "Aucune démarche en attente. La prochaine échéance apparaîtra ici un mois avant."));
+    else {
+      const card = el("div", `qd-next${next.status === "late" ? " is-late" : ""}`);
+      const head = el("div", "qd-next-head");
+      head.append(el("span", `sp-status ${ADMIN_STATUS[next.status].className}`, ADMIN_STATUS[next.status].label), el("span", "qd-countdown", countdown(next)));
+      card.append(head, el("h3", "qd-next-title", next.title), el("p", "qd-next-due", `${dueText(next)} · ${next.subtitle}`));
+      if (next.kind === "urssaf") {
+        const result = quarterDeclaration(next.quarter, lines);
+        const figures = el("dl", "qd-figures");
+        [["CA à déclarer", euros.format(result.toDeclare)],
+         ["Cotisations estimées", `≈ ${euros.format(result.contributionsEstimate)}`],
+        ].forEach(([term, value]) => { figures.append(el("dt", "", term), el("dd", "", value)); });
+        card.append(figures);
+        if (!result.toDeclare) card.append(el("p", "qd-explain", "Votre CA est à zéro ce trimestre : la déclaration reste obligatoire. Déclarez « 0 € »."));
+      }
+      card.append(el("p", "qd-explain", next.explain), checklist(next, refresh));
+      const actions = el("div", "sp-card-actions");
+      actions.append(external("Aller sur le site officiel", next.href));
+      card.append(actions);
+      nextBox.replaceChildren(card);
+    }
+
+    /* turnover per quarter */
+    const revenueBox = document.querySelector("[data-admin-revenue]");
+    const year = today.getFullYear();
+    const current = QDA.quarterOf(today);
+    const quarters = QDA.revenueByQuarter(lines, year);
+    const chart = QD.barChart({
+      bars: quarters.map((row) => ({
+        label: `T${row.q}`, value: row.amount, current: row.q === current.q,
+        hint: `${row.count} ${plural(row.count, "mission", "missions")}${row.q === current.q ? " · en cours" : ""}`,
+      })),
+      format: (value) => euros.format(value),
+      caption: `Chiffre d’affaires réalisé sur Q DEAL en ${year}, par trimestre`,
+    });
+    const table = el("table", "qd-table");
+    const thead = el("thead");
+    const headRow = el("tr");
+    ["Trimestre", "Missions", "CA Q DEAL", "CA hors Q DEAL", "À déclarer", "Cotisations estimées"].forEach((text) => headRow.append(el("th", "", text)));
+    thead.append(headRow);
+    const tbody = el("tbody");
+    let yearTotal = 0;
+    quarters.forEach((row) => {
+      const quarter = { year, q: row.q };
+      const result = quarterDeclaration(quarter, lines);
+      yearTotal += result.qdealAmount + result.otherAmount;
+      const tr = el("tr", row.q === current.q ? "is-current" : "");
+      const th = el("th", "", QDA.quarterLabel(quarter));
+      th.scope = "row";
+      th.append(el("small", "", QDA.quarterMonths(quarter)));
+      const otherCell = el("td");
+      const input = el("input", "qd-table-input");
+      input.type = "number";
+      input.min = "0";
+      input.step = "1";
+      input.inputMode = "numeric";
+      input.value = result.otherAmount || "";
+      input.placeholder = "0";
+      input.setAttribute("aria-label", `CA hors Q DEAL, ${QDA.quarterLabel(quarter)}`);
+      input.addEventListener("change", () => {
+        const admin = adminState();
+        save({ admin: { ...admin, other: { ...admin.other, [row.key]: Math.max(0, Number(input.value) || 0) } } });
+        renderAdmin();
+      });
+      otherCell.append(input);
+      tr.append(th, el("td", "", String(row.count)), el("td", "", euros.format(result.qdealAmount)), otherCell,
+        el("td", "qd-strong", euros.format(result.toDeclare)), el("td", "", `≈ ${euros.format(result.contributionsEstimate)}`));
+      tbody.append(tr);
+    });
+    table.append(thead, tbody);
+    const tableWrap = el("div", "qd-table-wrap");
+    tableWrap.append(table);
+    const ceiling = el("div", "qd-ceiling");
+    const ratio = Math.min(1, yearTotal / QDA.RULES.revenueCeiling);
+    ceiling.append(el("p", "", `${euros.format(yearTotal)} déclarés en ${year} sur un plafond de ${euros.format(QDA.RULES.revenueCeiling)} pour la micro-entreprise (services).`));
+    const track = el("div", "sp-progress-track");
+    const fill = el("div", "sp-progress-fill");
+    fill.style.width = `${Math.round(ratio * 100)}%`;
+    track.append(fill);
+    track.setAttribute("role", "progressbar");
+    track.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    track.setAttribute("aria-valuemin", "0");
+    track.setAttribute("aria-valuemax", "100");
+    track.setAttribute("aria-label", "Part du plafond annuel atteinte");
+    ceiling.append(track);
+    if (yearTotal > QDA.RULES.vatThreshold) ceiling.append(el("p", "sp-reason", `Au-delà de ${euros.format(QDA.RULES.vatThreshold)} de CA, la franchise de TVA ne s’applique plus : renseignez-vous avant de facturer.`));
+    revenueBox.replaceChildren(chart, tableWrap, ceiling,
+      el("p", "sp-inline-note", "Le CA Q DEAL additionne les missions terminées au prix convenu dans vos messages, ou à défaut au milieu de l’estimation. Ajoutez le CA fait ailleurs : la déclaration URSSAF porte sur toute votre activité."));
+
+    /* checklist of every deadline */
+    const listBox = document.querySelector("[data-admin-checklist]");
+    const tabsBox = document.querySelector("[data-admin-tabs]");
+    const filter = listBox.dataset.filter || "todo";
+    const groups = {
+      todo: rows.filter((row) => row.status === "todo" || row.status === "late" || row.status === "info"),
+      done: rows.filter((row) => row.status === "done"),
+      all: rows,
+    };
+    tabs(tabsBox, [
+      { key: "todo", label: "À faire", count: groups.todo.filter((row) => row.kind !== "info").length },
+      { key: "done", label: "Fait", count: groups.done.length },
+      { key: "all", label: "Toutes", count: rows.length },
+    ], filter, (key) => { listBox.dataset.filter = key; renderAdmin(); });
+    listBox.replaceChildren(...groups[filter].map((row) => {
+      const item = el("li", `qd-deadline is-${row.status}`);
+      const head = el("div", "qd-deadline-head");
+      const title = el("div", "qd-deadline-title");
+      title.append(el("b", "", row.title), el("span", "qd-deadline-due", `${dueText(row)} · ${row.subtitle}`));
+      const side = el("div", "qd-deadline-side");
+      side.append(el("span", `sp-status ${ADMIN_STATUS[row.status].className}`, ADMIN_STATUS[row.status].label));
+      if (row.stage) side.append(el("span", `qd-countdown${row.stage.level === "alert" ? " is-alert" : ""}`, row.stage.label));
+      head.append(title, side);
+      const why = el("details", "qd-why");
+      why.append(el("summary", "", "Comprendre cette démarche"), el("p", "", row.explain));
+      item.append(head, why);
+      if (row.actions.length) item.append(checklist(row, refresh));
+      item.append(external("Site officiel", row.href));
+      return item;
+    }));
+    if (!groups[filter].length) listBox.append(el("li", "sp-empty-item", "Rien dans cette liste."));
+
+    /* who pays the contributions on Q DEAL turnover */
+    const regime = QDA.regimeOn(today);
+    document.querySelector("[data-admin-regime]").replaceChildren(
+      QD.note(regime === "platform" ? "Vos cotisations sur Q DEAL sont prélevées à la source" : "Aujourd’hui, vous déclarez tout vous-même",
+        regime === "platform"
+          ? "Q DEAL prélève et reverse à l’URSSAF les cotisations sur le CA réalisé ici. Vous ne déclarez plus que le CA fait ailleurs."
+          : "Vous déclarez et payez les cotisations sur tout votre chiffre d’affaires, y compris celui réalisé sur Q DEAL."),
+      QD.note("Ce qui change au 1er janvier 2027",
+        "Les plateformes devront prélever elles-mêmes les cotisations sur le CA réalisé chez elles. Ce suivi est prêt : le CA Q DEAL apparaîtra comme déjà cotisé, et le montant à déclarer ne comprendra plus que le reste de votre activité."),
+    );
+
+    /* reference values */
+    const rules = QDA.RULES;
+    const refs = el("dl", "qd-figures is-list");
+    [["Taux de cotisations", `${oneDecimal.format(rules.contributionRate * 100)} % du CA · ${rules.contributionLabel}`],
+     ["Versement libératoire (option)", `${oneDecimal.format(rules.flatTaxRate * 100)} % du CA en plus, au lieu de l’impôt sur le revenu`],
+     ["Plafond de CA (services)", `${euros.format(rules.revenueCeiling)} par an`],
+     ["Franchise de TVA (services)", `jusqu’à ${euros.format(rules.vatThreshold)} de CA`],
+     ["Déclaration trimestrielle", "30 avril · 31 juillet · 31 octobre · 31 janvier"],
+    ].forEach(([term, value]) => { refs.append(el("dt", "", term), el("dd", "", value)); });
+    const sources = el("p", "qd-sources");
+    sources.append(el("span", "", `Valeurs relevées le ${QD.dayMonth.format(new Date(`${rules.checkedOn}T12:00:00`))}, à confirmer sur : `));
+    rules.sources.forEach(([label, href], index) => { if (index) sources.append(", "); sources.append(external(label, href)); });
+    document.querySelector("[data-admin-rules]").replaceChildren(refs, sources,
+      el("p", "sp-inline-note", "Ce suivi vous aide à ne rien oublier ; il ne remplace pas l’URSSAF ni les impôts. Les montants de cotisations sont des estimations : seul le calcul de l’URSSAF fait foi. Une ACRE ou une activité mixte changent les taux."));
+  }
+
+  /* ---------------------------------------------------------------- messages */
+  const missionTitle = (id) => (data.places.flatMap((entry) => entry.missions).find((mission) => mission.id === id) || {}).title;
+
+  function renderMessages() {
+    const currentId = new URLSearchParams(window.location.search).get("c");
+    const rows = QDM.conversations({ providerId: student.id }).map((row) => {
+      const last = row.messages[row.messages.length - 1];
+      const owner = QDM.business(row.business);
+      return {
+        id: row.id, title: row.business, unread: QDM.unread(row, "provider"),
+        subtitle: [owner && owner.sectorLabel, row.missionId && missionTitle(row.missionId)].filter(Boolean).join(" · "),
+        last: last ? `${last.from === "provider" ? "Vous : " : ""}${last.text || (last.kind === "price" ? `Proposition de ${euros.format(last.amount)}` : "Proposition de mission")} · ${stamp(last.at)}` : "",
+      };
+    });
+    QD.inbox(document.querySelector("[data-inbox]"), {
+      rows, currentId,
+      hrefOf: (row) => `student-messages.html${row.id ? `?c=${row.id}` : ""}`,
+      emptyTitle: "Aucune conversation",
+      emptyBody: "Contactez une entreprise depuis une mission recommandée : vos échanges apparaîtront ici.",
+      emptyAction: { label: "Voir les missions recommandées", href: "student-portal.html" },
+      open: (id) => {
+        const conversation = QDM.conversation(id);
+        QDM.markRead(id, "provider");
+        renderNav();
+        return QD.thread({
+          conversation, me: "provider", names: { business: conversation.business, provider: student.firstName },
+          onSend: (text) => QDM.send(id, { from: "provider", kind: "text", text, missionId: conversation.missionId }),
+        });
+      },
+    });
+  }
+
   /* ---------------------------------------------------------------- profile */
   const LEVELS = ["Licence 1", "Licence 2", "Licence 3", "Master 1", "Master 2", "Doctorat", "BTS ou DUT", "Autre"];
 
@@ -1185,8 +1447,8 @@
       multiline: true, full: true, placeholder: "Expériences de ménage, de remise en état, de repassage, langues parlées…",
     }));
     const rating = el("p", "sp-rating");
-    rating.append(el("b", "", student.rating ? `★ ${oneDecimal.format(student.rating)}` : "Pas encore de note"),
-      el("span", "", student.rating ? `${student.reviewCount} ${plural(student.reviewCount, "avis d’entreprise", "avis d’entreprises")}` : "Votre première prestation terminée ouvrira vos avis."));
+    rating.append(el("b", "", me.rating ? `★ ${oneDecimal.format(me.rating)}` : "Pas encore de note"),
+      el("span", "", me.rating ? `${me.ratingCount} ${plural(me.ratingCount, "avis d’entreprise", "avis d’entreprises")}` : "Votre première prestation terminée ouvrira vos avis."));
     document.querySelector("[data-experience]").replaceChildren(experience, rating,
       note("Votre note vient des avis reçus", "Elle est calculée par la base à partir des avis des entreprises (core.reviews) et n’est pas modifiable."));
 
@@ -1227,11 +1489,12 @@
   }
 
   /* ---------------------------------------------------------------- notifications */
-  const KIND_LABELS = { candidature: "Candidature", prestation: "Prestation", dossier: "Dossier", profil: "Profil" };
+  const KIND_LABELS = { candidature: "Candidature", prestation: "Prestation", dossier: "Dossier", profil: "Profil", administratif: "Administratif", message: "Message" };
+  const KIND_ICONS = { candidature: "send", prestation: "calendar", dossier: "file", administratif: "file", message: "chat", profil: "user" };
 
   function notificationRow(row, refresh) {
     const item = el("li", `sp-notification${row.read ? " is-read" : ""}${row.level === "alert" ? " is-alert" : ""}`);
-    item.append(icon(row.level === "alert" ? "alert" : row.kind === "candidature" ? "send" : row.kind === "prestation" ? "calendar" : row.kind === "dossier" ? "file" : "user"));
+    item.append(icon(row.level === "alert" ? "alert" : KIND_ICONS[row.kind] || "user"));
     const body = el("div", "sp-notification-body");
     const head = el("p", "sp-notification-head");
     head.append(el("b", "", row.title), el("span", "sp-tag", KIND_LABELS[row.kind] || row.kind));
@@ -1284,17 +1547,8 @@
   }
 
   /* ---------------------------------------------------------------- start */
-  renderTopbar();
-  renderNav();
+  renderShell();
   renderNotice();
-  backdrop.addEventListener("click", () => setDrawer(false));
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") return;
-    if (sidebar.classList.contains("is-open")) setDrawer(false);
-    const session = document.querySelector(".sp-session[open]");
-    if (session) { session.open = false; session.querySelector("summary").focus(); }
-  });
-  sidebar.addEventListener("click", (event) => { if (event.target.closest("a")) setDrawer(false); });
 
   ({
     dashboard: renderDashboard,
@@ -1303,6 +1557,8 @@
     applications: renderApplications,
     schedule: renderSchedule,
     documents: renderDocuments,
+    admin: renderAdmin,
+    messages: renderMessages,
     profile: renderProfile,
     notifications: renderNotifications,
   }[page] || (() => {}))();

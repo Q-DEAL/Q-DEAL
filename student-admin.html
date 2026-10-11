@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Votre chiffre d’affaires par trimestre, les échéances URSSAF et fiscales, et la liste de ce qu’il reste à faire.">
+    <title>Mon suivi administratif | Espace prestataire Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=ab06b1ff">
+    <script>try{if(sessionStorage.getItem("qdeal.loader")){sessionStorage.removeItem("qdeal.loader");var r=document.documentElement;r.classList.add("qd-arriving");addEventListener("DOMContentLoaded",function(){requestAnimationFrame(function(){requestAnimationFrame(function(){r.classList.add("qd-arrived")})});setTimeout(function(){r.classList.remove("qd-arriving","qd-arrived")},700)})}}catch(e){}</script>
+</head>
+  <body class="portal-page" data-portal-page="admin">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace prestataire"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Suivi administratif</p>
+          <h1>Mon suivi administratif</h1>
+          <p class="sp-lede">Votre chiffre d’affaires, vos échéances et ce qu’il reste à faire pour rester en règle comme micro-entrepreneur. Vous êtes prévenu un mois, quinze jours, une semaine puis la veille de chaque échéance.</p>
+        </section>
+
+        <nav class="qd-subnav" aria-label="Suivi administratif"><a href="student-admin.html" aria-current="page">Échéances et chiffre d’affaires</a><a href="student-documents.html">Mes documents</a></nav>
+
+        <section class="sp-block" aria-labelledby="sp-admin-next-title">
+          <div class="sp-block-head"><h2 id="sp-admin-next-title">Prochaine échéance</h2></div>
+          <div data-admin-next></div>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-admin-revenue-title">
+          <div class="sp-block-head"><h2 id="sp-admin-revenue-title">Chiffre d’affaires par trimestre</h2></div>
+          <div class="qd-panel" data-admin-revenue></div>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-admin-list-title">
+          <div class="sp-block-head"><h2 id="sp-admin-list-title">Ce que je dois faire</h2></div>
+          <div class="sp-tabs" data-admin-tabs></div>
+          <ol class="qd-deadlines" data-admin-checklist></ol>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-admin-regime-title">
+          <div class="sp-block-head"><h2 id="sp-admin-regime-title">Qui paie les cotisations sur Q DEAL ?</h2></div>
+          <div class="qd-notes" data-admin-regime></div>
+        </section>
+
+        <section class="sp-block" aria-labelledby="sp-admin-rules-title">
+          <div class="sp-block-head"><h2 id="sp-admin-rules-title">Les repères utilisés</h2></div>
+          <div class="qd-panel" data-admin-rules></div>
+        </section>
+      </main>
+    </div>
+    <script src="assets/demo/prestations.js?v=927be1d6"></script>
+    <script src="assets/demo/marketplace.js?v=f7be9a28"></script>
+    <script src="ui.js?v=7d07ecc3"></script>
+    <script src="market.js?v=2e84fe91"></script>
+    <script src="admin-rules.js?v=c4e466dd"></script>
+    <script src="portal.js?v=e51dece5"></script>
+  </body>
+</html>

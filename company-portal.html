@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Les prestataires recommandés pour vos immeubles et vos sites : notes, secteurs, zone, mobilité. Likez-les ou échangez avec eux.">
+    <title>Profils recommandés | Espace entreprise Q DEAL</title>
+    <link rel="icon" href="assets/images/qdeal-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=ab06b1ff">
+    <script>try{if(sessionStorage.getItem("qdeal.loader")){sessionStorage.removeItem("qdeal.loader");var r=document.documentElement;r.classList.add("qd-arriving");addEventListener("DOMContentLoaded",function(){requestAnimationFrame(function(){requestAnimationFrame(function(){r.classList.add("qd-arrived")})});setTimeout(function(){r.classList.remove("qd-arriving","qd-arrived")},700)})}}catch(e){}</script>
+</head>
+  <body class="portal-page" data-company-page="providers">
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <div class="sp-shell">
+      <header class="sp-topbar" data-portal-topbar></header>
+      <div class="sp-backdrop" data-portal-backdrop hidden></div>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace entreprise"></nav>
+      <main class="sp-main" id="main">
+        <p class="visually-hidden" data-live aria-live="polite"></p>
+        <section class="sp-head">
+          <p class="eyebrow">Profils recommandés</p>
+          <h1>Les bons prestataires, près de vos sites</h1>
+          <p class="sp-lede">Classés selon leur fiabilité sur Q DEAL, leur distance à votre site et leur expérience dans votre secteur. Likez ceux que vous voulez retrouver, échangez avec eux et proposez-leur une mission.</p>
+        </section>
+
+        <form class="sp-filters" data-filters novalidate>
+          <h2 class="visually-hidden">Filtres</h2>
+          <div class="sp-filters-grid">
+            <div class="field"><label for="cp-site">Mon site</label><select id="cp-site" name="site"></select></div>
+            <div class="field"><label for="cp-skill">Service</label><select id="cp-skill" name="skill"></select></div>
+            <div class="field"><label for="cp-kind">Profil</label><select id="cp-kind" name="kind"></select></div>
+            <div class="field"><label for="cp-mobility">Mobilité</label><select id="cp-mobility" name="mobility"></select></div>
+          </div>
+          <div class="sp-filters-foot">
+            <p class="sp-filters-note">Les novices assurent l’entretien courant ; les artisans, déjà en société, les interventions plus techniques.</p>
+            <button class="button button-outline" type="reset">Réinitialiser les filtres</button>
+          </div>
+        </form>
+
+        <div class="sp-results-head"><p class="sp-summary" data-summary></p></div>
+        <ol class="sp-cards qd-provider-grid" data-list></ol>
+      </main>
+    </div>
+    <script src="assets/demo/prestations.js?v=927be1d6"></script>
+    <script src="assets/demo/marketplace.js?v=f7be9a28"></script>
+    <script src="ui.js?v=7d07ecc3"></script>
+    <script src="market.js?v=2e84fe91"></script>
+    <script src="company.js?v=8c930e84"></script>
+  </body>
+</html>

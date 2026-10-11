@@ -6,12 +6,12 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="robots" content="noindex">
     <meta name="description" content="L’avancement de votre dossier administratif Q DEAL : documents demandés, statuts et pièces restant à fournir.">
-    <title>Suivi administratif | Espace étudiant Q DEAL</title>
+    <title>Suivi administratif | Espace prestataire Q DEAL</title>
     <link rel="icon" href="assets/images/qdeal-favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=23c2b2dc">
+    <link rel="stylesheet" href="styles.css?v=ab06b1ff">
     <script>try{if(sessionStorage.getItem("qdeal.loader")){sessionStorage.removeItem("qdeal.loader");var r=document.documentElement;r.classList.add("qd-arriving");addEventListener("DOMContentLoaded",function(){requestAnimationFrame(function(){requestAnimationFrame(function(){r.classList.add("qd-arrived")})});setTimeout(function(){r.classList.remove("qd-arriving","qd-arrived")},700)})}}catch(e){}</script>
 </head>
   <body class="portal-page" data-portal-page="documents">
@@ -19,14 +19,16 @@
     <div class="sp-shell">
       <header class="sp-topbar" data-portal-topbar></header>
       <div class="sp-backdrop" data-portal-backdrop hidden></div>
-      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace étudiant"></nav>
+      <nav class="sp-sidebar" id="sp-sidebar" data-portal-nav aria-label="Navigation de l’espace prestataire"></nav>
       <main class="sp-main" id="main">
         <p class="visually-hidden" data-live aria-live="polite"></p>
         <section class="sp-head">
           <p class="eyebrow">Suivi administratif</p>
-          <h1>Mon dossier</h1>
+          <h1>Mes documents</h1>
           <p class="sp-lede">Un dossier complet est demandé avant votre première prestation. Vos documents ne sont jamais déposés sur ce site : la transmission se fait par l’espace sécurisé de Q DEAL.</p>
         </section>
+
+        <nav class="qd-subnav" aria-label="Suivi administratif"><a href="student-admin.html">Échéances et chiffre d’affaires</a><a href="student-documents.html" aria-current="page">Mes documents</a></nav>
 
         <section class="sp-block" aria-labelledby="sp-dossier-state-title">
           <div class="sp-block-head"><h2 id="sp-dossier-state-title">Avancement</h2></div>
@@ -45,6 +47,10 @@
       </main>
     </div>
     <script src="assets/demo/prestations.js?v=927be1d6"></script>
-    <script src="portal.js?v=574d83de"></script>
+    <script src="assets/demo/marketplace.js?v=f7be9a28"></script>
+    <script src="ui.js?v=7d07ecc3"></script>
+    <script src="market.js?v=2e84fe91"></script>
+    <script src="admin-rules.js?v=c4e466dd"></script>
+    <script src="portal.js?v=e51dece5"></script>
   </body>
 </html>
