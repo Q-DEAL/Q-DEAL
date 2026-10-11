@@ -123,6 +123,12 @@ if (paramService) {
   currentGroup = paramService.group;
 }
 if (paramPlace) placeQuery.value = placeLabel(paramPlace);
+else {
+  // Only Strasbourg and its surroundings for now: the field starts with the last place searched, else the first one.
+  let remembered = "";
+  try { remembered = localStorage.getItem("qdeal.lieu") || ""; } catch { /* storage unavailable */ }
+  placeQuery.value = remembered || (catalog.places[0] ? placeLabel(catalog.places[0]) : "");
+}
 updateSummary();
 
 function updateSummary() {
@@ -208,6 +214,7 @@ function go() {
     serviceQuery.focus();
     return;
   }
+  try { localStorage.setItem("qdeal.lieu", place); } catch { /* storage unavailable */ }
   navigateWithLoader(`${missionsPage}?${params}`);
 }
 
@@ -246,7 +253,7 @@ list.addEventListener("keydown", (event) => {
   if (event.key === "ArrowUp") { event.preventDefault(); (index > 0 ? buttons[index - 1] : serviceQuery).focus(); }
 });
 placeQuery.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); go(); } });
-dialog.querySelector("[data-search-go]").addEventListener("click", go);
+dialog.querySelectorAll("[data-search-go]").forEach((button) => button.addEventListener("click", go));
 
 document.addEventListener("click", (event) => {
   if (!event.target.closest(".nav-item.has-panel")) closeNavPanels();

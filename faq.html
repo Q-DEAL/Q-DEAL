@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=f113410f">
+    <link rel="stylesheet" href="styles.css?v=fb5b45c4">
     <script>try{if(sessionStorage.getItem("qdeal.loader")){sessionStorage.removeItem("qdeal.loader");var r=document.documentElement;r.classList.add("qd-arriving");addEventListener("DOMContentLoaded",function(){requestAnimationFrame(function(){requestAnimationFrame(function(){r.classList.add("qd-arrived")})});setTimeout(function(){r.classList.remove("qd-arriving","qd-arrived")},700)})}}catch(e){}</script>
 </head>
   <body class="subpage">
@@ -38,14 +38,14 @@
     </aside>
     <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-dialog-title">
       <div class="search-dialog-head"><h2 id="search-dialog-title">Ménage</h2><button class="search-dialog-close" type="button" aria-label="Fermer">×</button></div>
-      <label class="visually-hidden" for="service-query">Service</label>
-      <input class="search-dialog-input" id="service-query" type="search" placeholder="De quel service avez-vous besoin ?" autocomplete="off">
+      <div class="search-dialog-fields">
+        <div class="search-dialog-field"><label for="service-query">Quel service ?</label><input class="search-dialog-input" id="service-query" type="search" placeholder="De quel service avez-vous besoin ?" autocomplete="off"></div>
+        <div class="search-dialog-field"><label for="service-place">Où ?</label><div class="search-dialog-where-row"><input id="service-place" type="search" list="search-dialog-places" placeholder="Ville, quartier ou code postal" autocomplete="off"><datalist id="search-dialog-places"></datalist><button class="button button-dark" type="button" data-search-go>Rechercher</button></div></div>
+      </div>
+      <p class="search-dialog-hint">Strasbourg et ses environs pour l’instant.</p>
       <nav class="search-dialog-crumbs" aria-label="Catégorie"><button type="button" data-crumb-root>Ménage</button><span class="search-dialog-crumb" data-crumb-group hidden></span></nav>
       <ul class="search-dialog-list" data-service-list></ul>
-      <div class="search-dialog-where">
-        <label for="service-place">Où ?</label>
-        <div class="search-dialog-where-row"><input id="service-place" type="search" list="search-dialog-places" placeholder="Ville ou code postal" autocomplete="off"><datalist id="search-dialog-places"></datalist><button class="button button-dark" type="button" data-search-go>Rechercher</button></div>
-      </div>
+      <div class="search-dialog-foot"><button class="button button-dark" type="button" data-search-go>Rechercher</button></div>
     </dialog>
     <main id="main">
       <section class="about-hero section-shell" id="top"><div class="about-hero-copy"><p class="eyebrow">Questions fréquentes</p><h1>Vos questions,<br><span>nos réponses.</span></h1><p>Entreprises, étudiants ou professionnels du nettoyage : retrouvez ici les réponses aux questions les plus courantes. L’assistant en bas à droite peut aussi vous aider.</p></div><div class="about-hero-media"><img class="is-illu" src="assets/images/illustrations/assistant.svg" alt="Illustration d’une conversation avec l’assistant Q DEAL" width="1200" height="800"></div></section>
@@ -79,6 +79,6 @@
       <div class="footer-bottom section-shell"><span>© Q DEAL. Le nettoyage des entreprises, près de chez vous.</span><div><a href="about-us.html">À propos</a><a href="contact.html">Contact</a></div></div>
     </footer>
     <script src="assets/demo/catalog.js?v=ed94dbb3"></script>
-    <script src="main.js?v=76c67467"></script>
+    <script src="main.js?v=07e8db63"></script>
   </body>
 </html>
