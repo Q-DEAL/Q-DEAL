@@ -114,7 +114,7 @@
     place = found;
     state.placeKey = found ? found.key : null;
     placeHint.textContent = found
-      ? `Point de départ : ${placeLabel(found)}. Votre adresse exacte ne sera demandée qu’à l’ouverture des comptes.`
+      ? `Point de départ : ${placeLabel(found)}.`
       : query ? "Lieu inconnu pour l’instant : Q DEAL couvre Strasbourg et ses environs." : "Un quartier ou un code postal suffit. Strasbourg et ses environs pour l’instant.";
     addressInput.classList.toggle("is-invalid", Boolean(query) && !found);
     drawZone();
@@ -283,7 +283,7 @@
     state.savedAt = new Date().toISOString();
     persist();
     saved.hidden = false;
-    saved.replaceChildren("Profil enregistré sur cet appareil. ");
+    saved.replaceChildren("Profil enregistré. ");
     const link = el("a", "", "Voir les demandes près de chez vous");
     link.href = `prestations.html?lieu=${encodeURIComponent(place.key)}`;
     saved.append(link);
