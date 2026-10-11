@@ -7,7 +7,7 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `index.html` — accueil : nettoyage pour les entreprises, étudiants, pros et agenda intelligent
 - `about-us.html` — présentation
 - `contact.html` — page contact
-- `devenir-prestataire.html` — inscription des prestataires : étudiants maintenant, professionnels bientôt (bouton « Devenir prestataire »)
+- `devenir-prestataire.html` — inscription des prestataires : étudiants maintenant, professionnels bientôt (bouton « Devenir prestataire ») ; le formulaire (`prestataire.js`) couvre identité, services, zone (point + rayon, carte) et disponibilités (semaine type, périodes d’indisponibilité), enregistré dans le navigateur en attendant les comptes
 - `demander-un-service.html` — page vide pour la demande d’un service (bouton « Demander un service »)
 - `student-portal.html` — espace étudiant (voir plus bas)
 - `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
