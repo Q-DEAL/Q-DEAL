@@ -9,7 +9,7 @@ Site statique modifiable directement dans ses fichiers HTML.
 - `contact.html` — page contact
 - `devenir-prestataire.html` — inscription des prestataires : étudiants maintenant, professionnels bientôt (bouton « Devenir prestataire ») ; le formulaire (`prestataire.js`) couvre identité, services, zone (point + rayon, carte) et disponibilités (semaine type, périodes d’indisponibilité), enregistré dans le navigateur en attendant les comptes
 - `demander-un-service.html` — page vide pour la demande d’un service (bouton « Demander un service »)
-- `student-portal.html` — espace étudiant (voir plus bas)
+- `student-portal.html` — espace prestataire, `company-portal.html` — espace entreprise (voir plus bas)
 - `prestations.html` — prestations autour d’un lieu (Strasbourg et ses environs) : carte et liste
 - `post-task.html` — demande de nettoyage, compteur de prestataires et candidats
 - `suivi-administratif.html` — suivi administratif des étudiants prestataires par email (URSSAF, assurance RC Pro), avec le modèle d’email `assets/images/email-suivi-administratif.svg`
@@ -39,11 +39,47 @@ Ouvrez ensuite [http://localhost:8000/](http://localhost:8000/).
 - `assets/images/` contient le logo (`qdeal-logo.svg`), le favicon et les images.
 - Les polices Inter et Manrope sont chargées depuis Google Fonts, donc leur chargement demande une connexion internet.
 
-## Espace étudiant
+## Espace prestataire
 
-Les pages `student-*.html` forment l’espace du prestataire : tableau de bord (`student-portal.html`), recherche de prestations (`student-tasks.html`) et détail (`student-task.html`), candidatures, planning, suivi administratif, profil et notifications. On y accède par le lien « Espace étudiant » du menu « Prestations ». Tout est rendu par `portal.js`, à partir du même instantané que `prestations.html` (`assets/demo/prestations.js`).
+Les pages `student-*.html` forment l’espace du prestataire, étudiant (novice) ou artisan. Leurs noms de fichiers gardent le préfixe `student-` pour ne pas casser les liens existants. On y accède par le lien « Espace prestataire » du menu « Prestations ».
 
-C’est une démonstration sans compte ni serveur : l’étudiant est choisi dans le menu de session (en haut à droite), et ses candidatures, son profil et son dossier sont enregistrés dans le navigateur (clé `localStorage` `qdeal.portal.v1`, effaçable par « Réinitialiser cet espace »). Les règles de la base sont rejouées : compétences requises (QD003), rayon de déplacement (QD004), prestations d’exemple non acceptables, adresse exacte révélée après candidature. Les documents administratifs ne sont jamais envoyés : seul le nom du fichier choisi est noté.
+- `student-portal.html` : tableau de bord, qui commence par les **missions recommandées**. Chaque mission affiche l’entreprise (note et missions réalisées), la localisation floutée, 2 ou 3 mots-clés, une **Estimation IA** (toujours une fourchette indicative, jamais un prix ferme) et les boutons « Contacter l’entreprise » et « Proposer un prix ».
+- `student-tasks.html`, `student-task.html`, `student-applications.html`, `student-schedule.html` : recherche, détail, candidatures, planning.
+- `student-messages.html` : conversations avec les entreprises.
+- `student-admin.html` : **suivi administratif**. Il affiche le CA par trimestre (missions Q DEAL et CA déclaré hors Q DEAL), la prochaine échéance, une check-list (à faire / fait) pour chaque démarche (déclaration et paiement URSSAF, CFE, déclaration de revenus) avec un court texte explicatif, et des rappels dans les notifications à J-30, J-15, J-7 et J-1. `student-documents.html` en est le second onglet : les pièces du dossier.
+- `student-profile.html`, `student-notifications.html`.
+
+## Espace entreprise
+
+Les pages `company-*.html` forment l’espace du syndic ou de l’entreprise. On y accède par le lien « Espace entreprise » du menu « Entreprises ».
+
+- `company-portal.html` : **profils recommandés**, classés à 50 % sur le score interne, 30 % sur la proximité du site et 20 % sur l’expérience dans le secteur de l’entreprise. Chaque carte affiche le nom (prénom + initiale), la note en étoiles et le nombre de notations, les secteurs les plus pratiqués, le résumé des compétences, la zone et le badge « Prêt à se déplacer » / « Ne se déplace pas », un bouton ♥ (favori) et « Échanger » (conversation, puis proposition de mission ponctuelle ou récurrente avec titulaire).
+- `company-favorites.html` : prestataires likés.
+- `company-messages.html` : conversations.
+
+## Comment les portails sont construits
+
+Tout est rendu en JavaScript, sans serveur :
+
+| Fichier | Rôle |
+| --- | --- |
+| `ui.js` | Composants partagés : étoiles, chips, dialogue, fil de conversation, messagerie, graphique en barres, coque des portails (barre du haut, menu, tiroir mobile) |
+| `market.js` | Règles de la place de marché : score interne, recommandations des deux côtés, estimation de prix, favoris, conversations, CA réalisé |
+| `admin-rules.js` | Référentiel administratif (taux, plafonds, échéances, sources, date de relevé), trimestres, check-lists, régime de cotisations |
+| `portal.js` / `company.js` | Les pages de chaque espace |
+| `assets/demo/marketplace.js` | Données fictives écrites à la main : profils, historiques, entreprises, détails des missions, conversations de départ |
+
+`assets/demo/prestations.js` reste l’instantané produit par la base. `marketplace.js` le complète, avec les mêmes identifiants, pour ce que la base ne contient pas encore. Ses blocs ont la forme des futures réponses de l’API.
+
+C’est une démonstration sans compte. Le prestataire ou l’entreprise se choisit dans le menu de session (en haut à droite). Ce qu’on y fait est enregistré dans le navigateur : `qdeal.portal.v1` (espace prestataire), `qdeal.company.v1` (espace entreprise) et `qdeal.market.v1` (favoris et conversations, partagés par les deux espaces : un message envoyé côté entreprise arrive côté prestataire dans le même navigateur). « Réinitialiser cet espace » efface tout.
+
+Règles respectées :
+
+- **Le score n’est jamais affiché** et **ne tient pas compte des refus**. Aucun événement n’existe pour un refus ou une absence de réponse, et aucun ratio n’a les refus au dénominateur. Le score récompense les missions honorées, la ponctualité, les notes et la régularité. Seul un no-show (mission acceptée puis non honorée) le fait baisser.
+- **Tout prix calculé est une estimation**, affichée « Estimation IA » sous forme de fourchette. Le prix se fixe en échangeant (« Proposer un prix »). `estimatePrice()` (dans `market.js`) remplace pour l’instant le modèle : seul son contenu changera.
+- **Pas de faux prestataires en service.** Les profils de la démo sont fictifs et la page le dit. En production, le fil ne montre que des prestataires inscrits (voir db/README.md, « Côté entreprise »).
+- **Précompte des cotisations (1er janvier 2027).** `QDA.regimeOn()` dit qui paie les cotisations sur le CA Q DEAL d’un trimestre, et `QDA.declaration()` sépare ce qui est prélevé par Q DEAL de ce qui reste à déclarer. Pour brancher le prélèvement : remplir `withheld` à partir des paiements, puis passer `RULES.withholding.enabled` à `true`.
+- **Les valeurs du référentiel administratif sont à vérifier** avant la production (`RULES.checkedOn`, `RULES.sources`). Elles changent par décret.
 
 ## Localisation (PostGIS)
 
