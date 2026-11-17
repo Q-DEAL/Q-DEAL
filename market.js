@@ -24,6 +24,8 @@
     automobile: "pros de l’automobile", btp: "entreprises du BTP", commerce: "commerces", evenementiel: "événements",
   };
   const KINDS = { novice: "Novice", artisan: "Artisan" };
+  // Documents Q DEAL checks before a provider's first mission, as syndics ask (codes of portal.js DOCUMENTS).
+  const VERIFIED_DOCUMENTS = { siret: "SIRET", rc_pro: "RC Pro", vigilance: "Attestation de vigilance URSSAF" };
   const MISSION_KINDS = { recurrente: "Récurrente", ponctuelle: "Ponctuelle" };
   const MOBILITY = { mobile: "Prêt à se déplacer", sedentaire: "Ne se déplace pas" };
 
@@ -84,6 +86,7 @@
       mobility: profile.mobility, mobilityLabel: MOBILITY[profile.mobility], since: profile.since,
       rating: history.ratingAvg, ratingCount: history.ratingCount, completed, topSectors, history,
       score: internalScore(history),
+      verified: Object.keys(VERIFIED_DOCUMENTS).filter((code) => (profile.verified || []).includes(code)),
     };
   }
   const providers = () => [...snapshotProviders.keys()].sort((a, b) => a - b).map(provider).filter(Boolean);
@@ -99,17 +102,42 @@
   /* ---------------------------------------------------------------- price estimate */
   /* Stand-in for the pricing model: same inputs (services, duration, kind) and the same output (a
      range, never a firm price). The real model will replace the body of this function only. */
-  const HOURLY = { menage: 18, electromenager: 20, textile: 22, voiture: 20 };
-  const HOURLY_SKILL = { nettoyage_fin_chantier: 24, nettoyage_logement_insalubre: 28, lustrage_voiture: 24, nettoyage_moquette: 23 };
+  /* Building services: hourly rates set so that the estimates match the prices heard in the field
+     interviews of November 2026 (about 14 € HT per bin collection, 46 to 58 € HT per weekly cleaning of a
+     small building's common areas). One copropriété only: to be checked against other interviews. */
+  const HOURLY = { copropriete: 25, menage: 18, electromenager: 20, textile: 22, voiture: 20 };
+  const HOURLY_SKILL = {
+    nettoyage_fin_chantier: 24, nettoyage_logement_insalubre: 28, lustrage_voiture: 24, nettoyage_moquette: 23,
+    entretien_parties_communes: 25, sortie_poubelles: 28, lavage_bacs: 24,
+  };
   const round5 = (value) => Math.max(5, Math.round(value / 5) * 5);
+  const roundPrice = (value) => (value < 30 ? Math.max(5, Math.round(value)) : round5(value));  // to the euro below 30 €
   function estimatePrice({ skills = [], durationH = 2, kind = "ponctuelle" }) {
     const rate = Math.max(...skills.map((code) => HOURLY_SKILL[code] || HOURLY[skillGroup.get(code)] || 18), 18);
     const central = rate * durationH;
     return {
-      low: round5(central * 0.9), high: round5(central * 1.12), mid: round5(central),
+      low: roundPrice(central * 0.9), high: roundPrice(central * 1.12), mid: roundPrice(central),
       unit: kind === "recurrente" ? "par passage" : "la mission", basis: `${String(durationH).replace(".", ",")} h estimées`,
     };
   }
+  /* ---------------------------------------------------------------- what the business pays */
+  /* The model decided on 2 November 2026 (reference document, § 9): the provider receives exactly the
+     price they set. Q DEAL's commission is paid by the business on top of it and goes down with the
+     provider's experience on Q DEAL: 15 % on their first 10 missions, 13 % from the 11th to the 30th,
+     11 % after, never under 2 € a mission. VAT (20 %) is charged on the commission only: a provider
+     who is a micro-entrepreneur under the threshold charges no VAT on their price. */
+  const COMMISSION_TIERS = [{ before: 10, rate: 0.15 }, { before: 30, rate: 0.13 }, { before: Infinity, rate: 0.11 }];
+  const COMMISSION_MIN = 2;
+  const VAT_RATE = 0.2;
+  const cents = (value) => Math.round(value * 100) / 100;
+  const commissionRate = (completed = 0) => COMMISSION_TIERS.find((tier) => completed < tier.before).rate;
+  function priceBreakdown(amount, completed = 0) {
+    const rate = commissionRate(completed);
+    const commission = cents(Math.max(amount * rate, COMMISSION_MIN));
+    const vat = cents(commission * VAT_RATE);
+    return { amount: cents(amount), rate, commission, vat, total: cents(amount + commission + vat), atMinimum: amount * rate < COMMISSION_MIN };
+  }
+
   const missionInfo = (id) => {
     const info = market.missions[id] || { kind: "ponctuelle", durationH: 2, keywords: [] };
     return { ...info, kindLabel: MISSION_KINDS[info.kind] };
@@ -157,7 +185,7 @@
   }
 
   /* ---------------------------------------------------------------- favourites and conversations */
-  const STORE_KEY = "qdeal.market.v1";
+  const STORE_KEY = "qdeal.market.v2";  // v2: syndic missions and payments (November 2026)
   const DAY = 86400000;
   function seed() {
     const now = Date.now();
@@ -166,9 +194,8 @@
       conversations: market.conversations.map((conversation, index) => ({
         id: `c${index + 1}`, business: conversation.business, providerId: conversation.providerId, missionId: conversation.missionId,
         read: { business: null, provider: null },
-        messages: conversation.messages.map((message, rank) => ({
-          from: message.from, kind: message.kind, text: message.text,
-          at: new Date(now - message.daysAgo * DAY - (conversation.messages.length - rank) * 3600000).toISOString(),
+        messages: conversation.messages.map(({ daysAgo, ...message }, rank) => ({
+          ...message, at: new Date(now - daysAgo * DAY - (conversation.messages.length - rank) * 3600000).toISOString(),
         })),
       })),
     };
@@ -229,6 +256,16 @@
   }
   const unread = (row, side) => row.messages.filter((message) => message.from !== side && (!row.read[side] || message.at > row.read[side])).length;
 
+  // The payment made for a mission, if the business accepted a price and paid (money held until the
+  // business confirms the mission was done).
+  function paymentFor(providerId, missionId) {
+    const paid = store.conversations
+      .filter((row) => row.providerId === providerId)
+      .flatMap((row) => row.messages)
+      .filter((message) => message.kind === "payment" && message.missionId === missionId);
+    return paid.length ? paid[paid.length - 1] : null;
+  }
+
   // The price agreed for a mission: the last price proposal sent about it, by either side.
   function agreedPrice(providerId, missionId) {
     const offers = store.conversations
@@ -260,10 +297,11 @@
 
   window.QDM = {
     SECTORS, KINDS, MISSION_KINDS, MOBILITY, SCORE_WEIGHTS, skillLabel, placeByKey, distanceKm,
-    internalScore, provider, providers, business, businesses, missionInfo, estimatePrice,
+    VERIFIED_DOCUMENTS, COMMISSION_TIERS, COMMISSION_MIN, VAT_RATE,
+    internalScore, provider, providers, business, businesses, missionInfo, estimatePrice, commissionRate, priceBreakdown,
     recommendProviders, recommendMissions,
     favoritesOf, isFavorite, toggleFavorite,
-    conversations, conversation, openConversation, send, markRead, unread, agreedPrice,
+    conversations, conversation, openConversation, send, markRead, unread, agreedPrice, paymentFor,
     pastRevenue, reset, storageWorks: () => storageWorks,
   };
 })();

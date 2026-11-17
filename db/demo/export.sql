@@ -126,6 +126,9 @@ DECLARE
   api_ids    smallint[];
   target     integer;
 BEGIN
+  -- Listing every example below raises the target to open missions + examples, beyond the cap of 20
+  -- once a place has many open missions. This database is thrown away after the export.
+  ALTER TABLE core.config DROP CONSTRAINT IF EXISTS config_examples_target_check;
   SELECT count(*) INTO pool_size FROM core.example_missions WHERE is_active;
   SELECT examples_target INTO target FROM site_config;
 

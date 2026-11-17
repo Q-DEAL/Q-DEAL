@@ -55,7 +55,8 @@ Les pages `company-*.html` forment l’espace du syndic ou de l’entreprise. On
 
 - `company-portal.html` : **profils recommandés**, classés à 50 % sur le score interne, 30 % sur la proximité du site et 20 % sur l’expérience dans le secteur de l’entreprise. Chaque carte affiche le nom (prénom + initiale), la note en étoiles et le nombre de notations, les secteurs les plus pratiqués, le résumé des compétences, la zone et le badge « Prêt à se déplacer » / « Ne se déplace pas », un bouton ♥ (favori) et « Échanger » (conversation, puis proposition de mission ponctuelle ou récurrente avec titulaire).
 - `company-favorites.html` : prestataires likés.
-- `company-messages.html` : conversations.
+- `company-messages.html` : conversations. Sous la dernière proposition de prix d’un prestataire, l’entreprise voit ce qu’elle paiera (prix du prestataire, commission Q DEAL, TVA sur la commission, total TTC) et le bouton « Accepter et payer » (démonstration, aucun paiement réel).
+- En haut de `company-portal.html`, l’encart « Combien vous payez » reprend l’exemple de la mission à 40 € (47,20 € TTC).
 
 ## Comment les portails sont construits
 
@@ -77,6 +78,7 @@ Règles respectées :
 
 - **Le score n’est jamais affiché** et **ne tient pas compte des refus**. Aucun événement n’existe pour un refus ou une absence de réponse, et aucun ratio n’a les refus au dénominateur. Le score récompense les missions honorées, la ponctualité, les notes et la régularité. Seul un no-show (mission acceptée puis non honorée) le fait baisser.
 - **Tout prix calculé est une estimation**, affichée « Estimation IA » sous forme de fourchette. Le prix se fixe en échangeant (« Proposer un prix »). `estimatePrice()` (dans `market.js`) remplace pour l’instant le modèle : seul son contenu changera.
+- **Le prestataire reçoit exactement son prix.** La commission est payée par l’entreprise en plus : 15 % sur les 10 premières missions du prestataire, 13 % de la 11e à la 30e, 11 % ensuite, 2 € minimum, plus 20 % de TVA sur la commission (`priceBreakdown()` dans `market.js`).
 - **Pas de faux prestataires en service.** Les profils de la démo sont fictifs et la page le dit. En production, le fil ne montre que des prestataires inscrits (voir db/README.md, « Côté entreprise »).
 - **Précompte des cotisations (1er janvier 2027).** `QDA.regimeOn()` dit qui paie les cotisations sur le CA Q DEAL d’un trimestre, et `QDA.declaration()` sépare ce qui est prélevé par Q DEAL de ce qui reste à déclarer. Pour brancher le prélèvement : remplir `withheld` à partir des paiements, puis passer `RULES.withholding.enabled` à `true`.
 - **Les valeurs du référentiel administratif sont à vérifier** avant la production (`RULES.checkedOn`, `RULES.sources`). Elles changent par décret.

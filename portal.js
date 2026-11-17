@@ -104,6 +104,7 @@
     { code: "statut_etudiant", label: "Justificatif de statut étudiant", hint: "Certificat de scolarité ou carte étudiante de l’année en cours." },
     { code: "siret", label: "Attestation d’inscription URSSAF", hint: "Votre numéro SIRET d’auto-entrepreneur, nécessaire pour facturer vos prestations." },
     { code: "rc_pro", label: "Responsabilité civile professionnelle", hint: "L’attestation de votre assurance, qui couvre les dommages causés pendant une prestation." },
+    { code: "vigilance", label: "Attestation de vigilance URSSAF", hint: "À télécharger sur votre espace URSSAF et à tenir à jour : les syndics la demandent avant de confier une mission." },
     { code: "rib", label: "Coordonnées bancaires (RIB)", hint: "Pour recevoir le paiement de vos prestations." },
     { code: "autorisation_travail", label: "Autorisation de travail", hint: "Demandée aux étudiants hors Union européenne dont le titre de séjour l’exige.", optional: true },
   ];
@@ -538,9 +539,21 @@
     const amount = QD.field({ name: "amount", label: `Votre prix (${row.estimate.unit})`, type: "number", min: 5, step: 1, value: row.estimate.mid, required: true,
       hint: `Estimation IA : ${euros.format(row.estimate.low)} – ${euros.format(row.estimate.high)}. Elle sert de repère : vous restez libre de votre prix.` });
     const message = QD.field({ name: "text", label: "Message (facultatif)", kind: "textarea", placeholder: "Ce qui est compris dans votre prix : matériel, produits, durée…" });
+    // The provider receives exactly their price: Q DEAL's commission is paid by the business, on top.
+    const received = el("p", "qd-estimate-inline qd-total-inline");
+    const showReceived = () => {
+      const value = Number(amount.querySelector("input").value);
+      received.hidden = !(value >= 5);
+      if (value < 5) return;
+      const b = QDM.priceBreakdown(value, me ? me.completed : 0);
+      received.replaceChildren(QD.icon("euro"), el("b", "", `Vous recevez ${QD.eurosCents.format(b.amount)} `),
+        el("span", "", `L’entreprise paiera ${QD.eurosCents.format(b.total)} TTC : la commission Q DEAL (${b.atMinimum ? "minimum de 2 €" : QD.percent(b.rate)}) est à sa charge, pas à la vôtre.`));
+    };
+    amount.addEventListener("input", showReceived);
+    showReceived();
     QD.dialog({
       title: "Proposer un prix", lede: `${row.title} · ${row.business}`, submitLabel: "Envoyer ma proposition",
-      content: [amount, message],
+      content: [amount, received, message],
       onSubmit: (values) => {
         const conversation = QDM.openConversation(row.business, student.id, row.id);
         QDM.send(conversation.id, {
@@ -1303,7 +1316,7 @@
       return {
         id: row.id, title: row.business, unread: QDM.unread(row, "provider"),
         subtitle: [owner && owner.sectorLabel, row.missionId && missionTitle(row.missionId)].filter(Boolean).join(" · "),
-        last: last ? `${last.from === "provider" ? "Vous : " : ""}${last.text || (last.kind === "price" ? `Proposition de ${euros.format(last.amount)}` : "Proposition de mission")} · ${stamp(last.at)}` : "",
+        last: last ? `${last.from === "provider" ? "Vous : " : ""}${last.text || (last.kind === "price" ? `Proposition de ${euros.format(last.amount)}` : last.kind === "payment" ? `Mission confirmée : ${QD.eurosCents.format(last.breakdown.amount)} pour vous` : "Proposition de mission")} · ${stamp(last.at)}` : "",
       };
     });
     QD.inbox(document.querySelector("[data-inbox]"), {
