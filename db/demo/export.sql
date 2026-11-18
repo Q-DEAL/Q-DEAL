@@ -141,7 +141,7 @@ BEGIN
     UPDATE core.config SET examples_enabled = false;
     SELECT coalesce(jsonb_agg(jsonb_build_object(
              'id', r.mission_id, 'title', r.title, 'business', r.business_name, 'sector', r.sector,
-             'startsInDays', round(extract(epoch FROM r.starts_at - now()) / 86400),
+             'startsInDays', r.starts_at::date - now()::date,  -- calendar days: the same result at any hour of the export
              'skills', to_jsonb(core.mission_skill_codes(r.mission_id)),
              'lon', round(r.lon::numeric, 6), 'lat', round(r.lat::numeric, 6), 'precisionM', r.precision_m,
              'distanceKm', r.distance_km, 'postalCode', r.postal_code, 'city', r.city)
@@ -182,7 +182,7 @@ BEGIN
       WHERE r.is_example AND NOT (r.example_id = ANY (prev));
       examples := examples || jsonb_build_array(jsonb_build_object(
         'exampleId', e.example_id, 'titleFr', e.title_fr, 'titleEn', e.title_en, 'sector', e.sector,
-        'startsInDays', round(extract(epoch FROM e.starts_at - now()) / 86400),
+        'startsInDays', e.starts_at::date - now()::date,
         'skills', to_jsonb(core.example_skill_codes(e.example_id)),
         'lon', round(e.lon::numeric, 6), 'lat', round(e.lat::numeric, 6), 'precisionM', e.precision_m, 'distanceKm', e.distance_km));
       prev := shown;
