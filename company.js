@@ -11,7 +11,7 @@
   const data = window.QDEAL_MISSIONS;
   const page = document.body.dataset.companyPage;
   if (!data || !QDM || !page) return;
-  const { plural, euros, stamp, el, button, link, icon, announce, emptyState } = QD;
+  const { plural, euros, eurosCents, percent, stamp, el, button, link, icon, announce, emptyState } = QD;
 
   /* ---------------------------------------------------------------- the business of this session */
   const STORE_KEY = "qdeal.company.v1";
@@ -72,6 +72,7 @@
   function missionDialog(provider, onSent) {
     const services = provider.skills.map((code) => [code, QDM.skillLabel.get(code) || code]);
     const estimateLine = el("p", "qd-estimate-inline");
+    const totalLine = el("p", "qd-estimate-inline qd-total-inline");
     const fields = [
       QD.field({ name: "title", label: "Intitulé de la mission", required: true, placeholder: "Entretien des parties communes, 12 rue…", full: true }),
       QD.field({ name: "skill", label: "Service", kind: "select", options: services }),
@@ -91,11 +92,18 @@
       const estimate = QDM.estimatePrice({ skills: [values.get("skill")], durationH: Number(values.get("duration")) || 2, kind: values.get("kind") });
       estimateLine.replaceChildren(icon("spark"), el("b", "", "Estimation IA "),
         el("span", "", `${euros.format(estimate.low)} – ${euros.format(estimate.high)} ${estimate.unit} · indicative, le prix se fixe avec le prestataire`));
+      const amount = Number(values.get("amount"));
+      totalLine.hidden = !(amount >= 5);
+      if (amount >= 5) {
+        const b = QDM.priceBreakdown(amount, provider.completed);
+        totalLine.replaceChildren(icon("euro"), el("b", "", `Vous paierez ${eurosCents.format(b.total)} TTC `),
+          el("span", "", `Soit ${eurosCents.format(b.amount)} pour ${provider.firstName}, ${eurosCents.format(b.commission)} de commission Q DEAL (${b.atMinimum ? "minimum par mission" : percent(b.rate)}) et ${eurosCents.format(b.vat)} de TVA sur la commission.`));
+      }
     };
     QD.dialog({
       title: `Proposer une mission à ${provider.displayName}`, wide: true,
       lede: `${provider.kindLabel} · ${provider.place.labelFr}. ${provider.displayName} reste libre d’accepter ou non, sans conséquence pour son profil.`,
-      content: [grid, estimateLine], submitLabel: "Envoyer la proposition",
+      content: [grid, estimateLine, totalLine], submitLabel: "Envoyer la proposition",
       onSubmit: (values) => {
         const conversation = QDM.openConversation(owner.name, provider.id);
         const kind = values.get("kind");
@@ -119,12 +127,73 @@
     update();
   }
 
+  /* ---------------------------------------------------------------- accepting a price and paying */
+  /* A provider's price proposal, seen by the business: what it will pay in total, and « Accepter et
+     payer ». The money is held by the payment partner until the business confirms the mission was
+     done (or 72 h after it), then paid to the provider; both invoices are made at that moment. */
+  function payDialog(conversation, offer, provider, onPaid) {
+    const breakdown = QDM.priceBreakdown(offer.amount, provider.completed);
+    const tiers = el("p", "qd-price-note",
+      `Commission dégressive selon l’expérience du prestataire sur Q DEAL : ${percent(QDM.COMMISSION_TIERS[0].rate)} sur ses 10 premières missions, ${percent(QDM.COMMISSION_TIERS[1].rate)} jusqu’à la 30e, ${percent(QDM.COMMISSION_TIERS[2].rate)} ensuite (${provider.firstName} : ${provider.completed} ${plural(provider.completed, "mission réalisée", "missions réalisées")}).`);
+    const vat = el("p", "qd-price-note", provider.kind === "novice"
+      ? `${provider.firstName} est micro-entrepreneur : pas de TVA sur son prix (franchise en base de TVA).`
+      : `Le prix de ${provider.firstName} comprend sa TVA éventuelle.`);
+    const steps = el("ol", "qd-pay-steps");
+    [
+      ["Vous payez maintenant", "L’argent est conservé par notre partenaire de paiement agréé, pas encore versé."],
+      ["La mission est réalisée", `${provider.firstName} intervient à la date convenue.`],
+      ["Vous validez", "En un clic une fois la mission faite, ou automatiquement au bout de 72 h."],
+      ["Le prestataire est payé", "Les deux factures (prestation et commission Q DEAL) sont créées automatiquement."],
+    ].forEach(([title, body]) => {
+      const item = el("li");
+      item.append(el("b", "", title), el("span", "", body));
+      steps.append(item);
+    });
+    QD.dialog({
+      title: "Accepter et payer", wide: true,
+      lede: `${offer.subject || "Mission"} · ${provider.displayName}`,
+      content: [QD.priceLines(breakdown, { providerName: provider.firstName }), tiers, vat, steps,
+        el("p", "qd-demo-note", "Démonstration : aucun paiement n’est effectué.")],
+      submitLabel: `Payer ${eurosCents.format(breakdown.total)}`,
+      onSubmit: () => {
+        QDM.send(conversation.id, {
+          from: "business", kind: "payment", missionId: offer.missionId, subject: offer.subject,
+          amount: offer.amount, breakdown, text: "",
+        });
+        announce(`Paiement de ${eurosCents.format(breakdown.total)} enregistré. ${provider.firstName} est prévenu.`);
+        portal.renderNav();
+        if (onPaid) onPaid();
+      },
+    });
+  }
+
+  // Added under each message of a conversation: on the provider's latest price for a mission, the total
+  // the business will pay and the button to accept it.
+  function offerExtra(conversation, provider, redraw) {
+    return (message) => {
+      if (message.kind !== "price" || message.from !== "provider") return null;
+      const latest = conversation.messages.filter((row) => row.kind === "price" && row.missionId === message.missionId).pop();
+      if (latest !== message) return null;
+      const box = el("div", "qd-pay-box");
+      box.append(el("p", "qd-label", "Ce que vous paierez"), QD.priceLines(QDM.priceBreakdown(message.amount, provider.completed), { compact: true }));
+      if (QDM.paymentFor(provider.id, message.missionId)) {
+        const done = el("p", "qd-pay-done");
+        done.append(icon("check"), el("span", "", "Payé · l’argent est bloqué jusqu’à votre validation de la mission"));
+        box.append(done);
+      } else {
+        box.append(button("button button-dark", "Accepter et payer", () => payDialog(conversation, message, provider, redraw)));
+      }
+      return box;
+    };
+  }
+
   function exchangeDialog(provider, refresh) {
     const conversation = QDM.openConversation(owner.name, provider.id);
     QDM.markRead(conversation.id, "business");
-    const view = QD.thread({
+    let view = null;
+    view = QD.thread({
       conversation, me: "business", names: { business: owner.name, provider: provider.firstName },
-      placeholder: `Bonjour ${provider.firstName}, …`,
+      placeholder: `Bonjour ${provider.firstName}, …`, extra: offerExtra(conversation, provider, () => view.redraw()),
       onSend: (text) => { QDM.send(conversation.id, { from: "business", kind: "text", text }); portal.renderNav(); },
     });
     const box = QD.dialog({
@@ -170,6 +239,14 @@
       el("li", `qd-badge ${provider.mobility === "mobile" ? "is-mobile" : "is-static"}`, provider.mobilityLabel),
       el("li", "qd-badge", `${provider.completed} ${plural(provider.completed, "mission", "missions")}`));
     card.append(badges);
+
+    const missing = Object.keys(QDM.VERIFIED_DOCUMENTS).filter((code) => !provider.verified.includes(code));
+    const docs = el("p", `qd-verified${missing.length ? " is-partial" : ""}`);
+    docs.append(icon(missing.length ? "clock" : "check"), el("b", "", missing.length ? "Documents en cours de vérification" : "Documents vérifiés"),
+      el("span", "", missing.length
+        ? `Vérifiés : ${provider.verified.map((code) => QDM.VERIFIED_DOCUMENTS[code]).join(", ") || "aucun"} · en attente : ${missing.map((code) => QDM.VERIFIED_DOCUMENTS[code]).join(", ")}`
+        : Object.values(QDM.VERIFIED_DOCUMENTS).join(" · ")));
+    card.append(docs);
 
     const sectors = el("div", "qd-provider-sectors");
     sectors.append(el("p", "qd-label", "Secteurs les plus pratiqués"),
@@ -262,7 +339,7 @@
       return {
         id: row.id, title: provider ? provider.displayName : "Prestataire", unread: QDM.unread(row, "business"),
         subtitle: provider ? `${provider.kindLabel} · ${provider.place.labelFr}` : "",
-        last: last ? `${last.from === "business" ? "Vous : " : ""}${last.text || (last.kind === "price" ? `Proposition de ${euros.format(last.amount)}` : "Proposition de mission")} · ${stamp(last.at)}` : "",
+        last: last ? `${last.from === "business" ? "Vous : " : ""}${last.text || (last.kind === "price" ? `Proposition de ${euros.format(last.amount)}` : last.kind === "payment" ? `Paiement de ${eurosCents.format(last.breakdown.total)}` : "Proposition de mission")} · ${stamp(last.at)}` : "",
       };
     }).filter((row) => row.last || row.id === currentId);
     QD.inbox(document.querySelector("[data-inbox]"), {
@@ -279,10 +356,13 @@
         const box = el("div", "qd-inbox-thread");
         const actions = el("div", "sp-card-actions");
         actions.append(button("button button-outline", "Proposer une mission", () => missionDialog(provider, () => window.location.reload())));
-        box.append(actions, QD.thread({
+        let view = null;
+        view = QD.thread({
           conversation, me: "business", names: { business: owner.name, provider: provider.firstName },
           onSend: (text) => QDM.send(id, { from: "business", kind: "text", text }),
-        }));
+          extra: offerExtra(conversation, provider, () => view.redraw()),
+        });
+        box.append(actions, view);
         return box;
       },
     });

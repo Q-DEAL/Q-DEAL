@@ -14,6 +14,8 @@
   const time = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
   const oneDecimal = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const euros = new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+  const eurosCents = new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const percent = (rate) => `${Math.round(rate * 100)}\u00a0%`;  // no line break before %
   const stamp = (iso) => (iso ? shortDate.format(new Date(iso)) : "");
 
   /* ---------------------------------------------------------------- DOM helpers */
@@ -166,6 +168,26 @@
     return box;
   }
 
+  /* ---------------------------------------------------------------- price breakdown */
+  /* What the business pays, line by line, from market.js priceBreakdown(): the provider's price, Q DEAL's
+     commission, the VAT on the commission and the total. compact: the short version inside a message. */
+  function priceLines(breakdown, { compact = false, providerName } = {}) {
+    const box = el("dl", `qd-price${compact ? " is-compact" : ""}`);
+    const line = (label, value, note, className) => {
+      const row = el("div", `qd-price-row${className ? ` ${className}` : ""}`);
+      const term = el("dt", "", label);
+      if (note && !compact) term.append(el("small", "", note));
+      row.append(term, el("dd", "", eurosCents.format(value)));
+      box.append(row);
+    };
+    line(providerName ? `Prix de ${providerName}` : "Prix du prestataire", breakdown.amount, "Versé en totalité au prestataire");
+    line(breakdown.atMinimum ? "Commission Q DEAL (minimum)" : `Commission Q DEAL (${percent(breakdown.rate)})`, breakdown.commission,
+      breakdown.atMinimum ? "Minimum de 2 € par mission" : "Paiement sécurisé, factures et suivi compris");
+    line("TVA sur la commission (20 %)", breakdown.vat);
+    line("Total à payer", breakdown.total, "TTC", "is-total");
+    return box;
+  }
+
   /* ---------------------------------------------------------------- dialog */
   /* A modal on the native <dialog>: focus trap, Escape and the backdrop come with it.
      content: nodes; onSubmit(formData) returns false to keep the dialog open. */
@@ -208,8 +230,9 @@
 
   /* ---------------------------------------------------------------- conversation thread */
   /* One conversation between a business and a provider, seen from `me` ("business" | "provider").
-     Messages: { from, kind: "text" | "mission" | "price", text, at, mission?, amount?, estimate? }. */
-  function messageNode(message, me, names) {
+     Messages: { from, kind: "text" | "mission" | "price" | "payment", text, at, mission?, amount?, estimate?, breakdown? }.
+     extra(message): optional, page-specific nodes added under a message (e.g. « Accepter et payer »). */
+  function messageNode(message, me, names, extra) {
     const mine = message.from === me;
     const item = el("li", `qd-msg${mine ? " is-mine" : ""}${message.kind !== "text" ? ` is-${message.kind}` : ""}`);
     const who = el("p", "qd-msg-who", `${mine ? "Vous" : names[message.from]} · ${stamp(message.at)} ${time.format(new Date(message.at))}`);
@@ -231,16 +254,29 @@
       if (message.estimate) card.append(el("p", "qd-msg-sub", `Estimation IA affichée : ${euros.format(message.estimate.low)} – ${euros.format(message.estimate.high)} (indicative)`));
       item.append(card);
     }
+    if (message.kind === "payment") {
+      // Sent by the business when it accepts a price: the money is held until it confirms the mission.
+      const card = el("div", "qd-msg-card is-paid");
+      const b = message.breakdown;
+      card.append(el("span", "qd-msg-tag", "Mission confirmée · paiement sécurisé"));
+      if (message.subject) card.append(el("b", "", message.subject));
+      card.append(me === "provider"
+        ? el("p", "qd-msg-sub", `Vous recevrez ${eurosCents.format(b.amount)} une fois la mission validée par l’entreprise (ou automatiquement 72 h après la fin de la mission).`)
+        : el("p", "qd-msg-sub", `${eurosCents.format(b.total)} TTC payés. L’argent reste bloqué jusqu’à ce que vous validiez la mission (validation automatique au bout de 72 h).`));
+      item.append(card);
+    }
     if (message.text) item.append(el("p", "qd-msg-text", message.text));
+    const more = extra ? extra(message) : null;
+    if (more) item.append(more);
     return item;
   }
 
-  function thread({ conversation, me, names, onSend, placeholder }) {
+  function thread({ conversation, me, names, onSend, placeholder, extra }) {
     const box = el("div", "qd-thread");
     const list = el("ol", "qd-msgs");
     list.setAttribute("aria-live", "polite");
     const draw = () => {
-      list.replaceChildren(...conversation.messages.map((message) => messageNode(message, me, names)));
+      list.replaceChildren(...conversation.messages.map((message) => messageNode(message, me, names, extra)));
       if (!conversation.messages.length) list.append(el("li", "qd-msgs-empty", "Aucun message pour l’instant. Présentez-vous en quelques mots."));
       requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
     };
@@ -434,7 +470,7 @@
   }
 
   window.QD = {
-    locale, plural, dateFormat, dayMonth, shortDate, oneDecimal, euros, stamp,
+    locale, plural, dateFormat, dayMonth, shortDate, oneDecimal, euros, eurosCents, percent, stamp, priceLines,
     el, button, link, icon, announce, stars, chip, chips, emptyState, note, tabs, progressBar, field,
     dialog, thread, inbox, barChart, shell, sessionMenu, notice,
   };
